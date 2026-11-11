@@ -1,0 +1,17 @@
+✔ rejects unauthorized before contacting provider (534.782988ms)
+✔ forwards documented JSON and returns validated answer (mock) (104.988412ms)
+✔ rejects malformed offers (33.436621ms)
+✔ maps access denied without upstream body (285.190065ms)
+✔ applies user session rate limits (25.570396ms)
+✔ expired sessions are rejected (50.6036ms)
+✔ missing server API key is reported (15.685706ms)
+✔ network failures are sanitized (20.547721ms)
+✔ malformed upstream SDP never becomes a successful answer (27.248286ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2063.865776

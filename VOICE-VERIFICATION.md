@@ -1,0 +1,7 @@
+# Voice verification and limitations
+
+The implementation uses Android SpeechRecognizer and Android TTS in a turn-based foreground loop. It does not implement or claim native bidirectional realtime audio, WebRTC, a trusted ephemeral-key service, simultaneous listening/speaking, audio barge-in, or provider-streaming. System recognition provides end-of-turn and RMS levels; they are not an app-owned VAD. Speaker output amplitude is unavailable. A brief service retry occurs after recognizer no-match or timeout. Network, audio focus, or speech-service errors terminate the session rather than claiming automatic network reconnection.
+
+Manual acceptance status: opening app, Start/permission, real first reply, second turn, correct indicators, interruption, Stop cleanup, Bluetooth, lifecycle, calls, connection test, and encrypted settings upgrade are all UNTESTED on a device/provider. Barge-in is NOT IMPLEMENTED in the only available mode. Automated tests are mocks/pure logic and do not prove microphone, network, playback, permission, or device behavior. Consult README for exact manual steps. The user must remain in the foreground and the speech provider may send audio to its service.
+
+Automated build verification: six JVM unit tests passed: three validate provider input and three test recognizer-turn duplicate/stale callback gating. They do not cover the complete Android session. The Android permission, playback failure, cancellation, network loss and focus paths remain unverified on device.

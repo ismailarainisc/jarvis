@@ -1,0 +1,15 @@
+.gradle/
+.kotlin/
+.idea/
+**/build/
+local.properties
+*.iml
+*.apk
+*.aab
+*.idsig
+*.zip
+*.jks
+*.keystore
+.env
+.env.*
+!*.example
