@@ -16,7 +16,8 @@ fun displayLevel(rms:Float):Float=if(rms<=0f)0f else ((20*log10(rms.coerceAtLeas
 /** 10 Hz publish rate; smoothing applies only to genuine measured PCM. */
 class PcmLevelMeter {
  private var last=Long.MIN_VALUE;private var energy=0.0;private var count=0;private var display=0f
- fun sample(bytes:ByteArray,nowMs:Long):AudioLevel? {val rms=pcm16Rms(bytes);energy+=rms*rms;count++;if(last!=Long.MIN_VALUE && nowMs-last<100)return null;last=nowMs;val mean=sqrt(energy/count).toFloat();energy=0.0;count=0;val next=displayLevel(mean);display=if(mean==0f)0f else display*.4f+next*.6f;return AudioLevel(mean,display)}
+ @Synchronized fun sample(bytes:ByteArray,nowMs:Long):AudioLevel? {val rms=pcm16Rms(bytes);energy+=rms*rms;count++;if(last!=Long.MIN_VALUE && nowMs-last<100)return null;last=nowMs;val mean=sqrt(energy/count).toFloat();energy=0.0;count=0;val next=displayLevel(mean);display=if(mean==0f)0f else display*.4f+next*.6f;return AudioLevel(mean,display)}
+ @Synchronized fun reset(){last=Long.MIN_VALUE;energy=0.0;count=0;display=0f}
 }
 /** Audio-energy activity only; this is not a semantic speech recognizer or provider VAD. */
 class AudioActivityDetector {

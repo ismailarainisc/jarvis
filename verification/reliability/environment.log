@@ -1,0 +1,12 @@
+Verification environment: 2026-11-11T09:54:57.669871+00:00
+Working baseline: 91502d09e8493ea568636012439ca72edde06a2e
+Android SDK: platform 35; JDK 17; Gradle wrapper 8.9
+Google/Gemini credential present: False
+KVM device exists: False
+Android device enumeration:
+List of devices attached
+
+
+No API key was printed or used for a live request.
+No real provider, audio device or instrumentation execution is claimed.
+Android emulator executable installed: False

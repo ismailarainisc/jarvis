@@ -1,0 +1,26 @@
+
+> test
+> node --test server.test.mjs
+
+✔ rejects unauthorized before contacting provider (201.253414ms)
+✔ forwards documented JSON and returns validated answer (mock) (82.940241ms)
+✔ rejects malformed offers (18.91807ms)
+✔ maps access denied without upstream body (19.743137ms)
+✔ applies user session rate limits (68.084973ms)
+✔ expired sessions are rejected (20.92273ms)
+✔ missing server API key is reported (11.181116ms)
+✔ network failures are sanitized (50.953696ms)
+✔ malformed upstream SDP never becomes a successful answer (35.338741ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1186.120539
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
+npm notice To update run: npm install -g npm@12.2.2
+npm notice

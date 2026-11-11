@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiFailureTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-11T09:56:54" hostname="9e5cad0fb6e3" time="0.003">
+  <properties/>
+  <testcase name="closeCodesAreClassifiedWithoutUntrustedReasonText" classname="com.raaz.assistant.GeminiFailureTest" time="0.001"/>
+  <testcase name="transportErrorsNeverExposeTheirRawMessage" classname="com.raaz.assistant.GeminiFailureTest" time="0.001"/>
+  <testcase name="structuredProviderErrorsAreDistinct" classname="com.raaz.assistant.GeminiFailureTest" time="0.0"/>
+  <testcase name="ownershipCannotBeReleasedByPreviousActivity" classname="com.raaz.assistant.GeminiFailureTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+{
+  "jvm": {
+    "tests": 116,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "backend": {
+    "tests": 9,
+    "pass": 9,
+    "fail": 0
+  },
+  "instrumentation": "compiled, not executed",
+  "device": "not tested",
+  "live_provider": "not tested"
+}

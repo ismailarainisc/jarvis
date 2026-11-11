@@ -43,7 +43,7 @@ private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SET
  Screen.MEMORY -> InfoScreen("Memory center","Personal memory is not yet implemented. Chat history is stored locally on this device.")
  Screen.CAMERA -> Column(Modifier.padding(20.dp)){Text("Camera & vision",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.height(12.dp));Text("Take a photo to attach to your next message. The selected model must support image input.");Spacer(Modifier.height(16.dp));Button(onClick=onCamera){Text("Take photo")};if(ui.imageAttached){Text("Photo attached");TextButton(onClick=vm::removePhoto){Text("Remove photo")}}}
  Screen.TASKS -> InfoScreen("Tasks & approvals","Device automation and approvals are not yet implemented.")
- Screen.ABOUT -> InfoScreen("About & diagnostics","JARVIS 5.0 Gemini\n\nSpeech recognition uses your Android speech provider. Voice responses use your device's text-to-speech engine. Provider status is not tested automatically.\n\nContinuous turn-based voice runs in the foreground. Gemini native Live is available from Home. Model access and quota depend on your Google account. Wake word is not implemented.")
+ Screen.ABOUT -> InfoScreen("About & diagnostics","JARVIS 5.1 Reliability\n\nSpeech recognition uses your Android speech provider. Voice responses use your device's text-to-speech engine. Provider status is not tested automatically.\n\nContinuous turn-based voice runs in the foreground. Gemini native Live is available from Home. Model access and quota depend on your Google account. Wake word is not implemented.")
  }
  }}}
 }
@@ -63,7 +63,7 @@ private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SET
  val context=LocalContext.current
  val reduced=android.provider.Settings.Global.getFloat(context.contentResolver,android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,1f)==0f
  val phase=if(reduced)0f else JarvisOrbitPhase()
- val color=when(state){AssistantState.ERROR->Color(0xFFFF747C);AssistantState.THINKING,AssistantState.CONNECTING->Violet;AssistantState.SPEAKING->Color(0xFF65E8BD);else->Cyan}
+ val color=when(state){AssistantState.ERROR->Color(0xFFFF747C);AssistantState.THINKING,AssistantState.PROCESSING,AssistantState.CONNECTING->Violet;AssistantState.SPEAKING->Color(0xFF65E8BD);else->Cyan}
  Canvas(Modifier.sizeIn(maxWidth=230.dp,maxHeight=230.dp).aspectRatio(1f).semantics{contentDescription="Assistant visual, ${state.name.lowercase()}"}){
   val r=size.minDimension*.43f
   val measured=if(reduced)0f else maxOf(if(muted)0f else microphoneLevel,playbackLevel).coerceIn(0f,1f)

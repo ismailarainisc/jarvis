@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.ChatCompletionClientTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-11T09:56:52" hostname="9e5cad0fb6e3" time="1.542">
+  <properties/>
+  <testcase name="interruptedStreamIsNotSuccessful" classname="com.raaz.assistant.ChatCompletionClientTest" time="0.934"/>
+  <testcase name="errorsDoNotExposeProviderResponseBody" classname="com.raaz.assistant.ChatCompletionClientTest" time="0.177"/>
+  <testcase name="cancellationClosesDelayedCallAndAllowsNextRequest" classname="com.raaz.assistant.ChatCompletionClientTest" time="0.221"/>
+  <testcase name="authenticSseIsDeliveredIncrementally" classname="com.raaz.assistant.ChatCompletionClientTest" time="0.094"/>
+  <testcase name="redirectsAreNotFollowedWithCredentials" classname="com.raaz.assistant.ChatCompletionClientTest" time="0.115"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

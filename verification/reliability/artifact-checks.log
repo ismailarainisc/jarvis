@@ -1,0 +1,4 @@
+PASS: apksigner verify returned 0
+PASS: zipalign -P 16 -c 4 returned 0
+PASS: previous and updated APK certificate SHA-256 match: 91cf099174951ce2d669a696a9277f85f93001198ba685ee6b2a19ef3fcd4aa5
+APK SHA-256: b734cff5d677a12e56af18130f865a1f000aa3038c4a36b1f5155c39a0804fc5

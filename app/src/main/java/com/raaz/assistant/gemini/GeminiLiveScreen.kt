@@ -22,17 +22,17 @@ import com.raaz.assistant.live.MeasuredWaveform
 import com.raaz.assistant.ui.JarvisFace
 
 @Composable fun GeminiLiveScreen(controller:GeminiLiveController){
- DisposableEffect(controller){onDispose{controller.stop()}}
+ DisposableEffect(controller){controller.setScreenVisible(true);onDispose{controller.setScreenVisible(false)}}
  val ui by controller.state.collectAsStateWithLifecycle();var key by remember{mutableStateOf("")};var model by remember{mutableStateOf(controller.model())};var voice by remember{mutableStateOf(controller.voice())}
  val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){if(it)controller.start()else controller.permissionDenied()}
  Column(Modifier.fillMaxSize()){
  Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
   Text("Gemini Live",style=MaterialTheme.typography.headlineSmall);Text("Google AI Studio · native Gemini audio")
   Text("Connection: ${ui.connection}",color=if(ui.connection=="ERROR")MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-  val face=when{ui.connection=="ERROR"->AssistantState.ERROR;ui.outputActive->AssistantState.SPEAKING;ui.ready->AssistantState.LISTENING;ui.active->AssistantState.CONNECTING;else->AssistantState.IDLE}
+  val face=when(ui.phase){GeminiPhase.ERROR->AssistantState.ERROR;GeminiPhase.ASSISTANT_SPEAKING->AssistantState.SPEAKING;GeminiPhase.LISTENING,GeminiPhase.USER_SPEAKING->AssistantState.LISTENING;GeminiPhase.PROCESSING->AssistantState.PROCESSING;GeminiPhase.INTERRUPTED->AssistantState.INTERRUPTED;GeminiPhase.CONNECTING,GeminiPhase.SETTING_UP,GeminiPhase.DISCONNECTING->AssistantState.CONNECTING;GeminiPhase.STOPPED->AssistantState.STOPPED;else->AssistantState.IDLE}
   Box(Modifier.fillMaxWidth(),contentAlignment=Alignment.Center){JarvisFace(face,ui.microphoneLevel,ui.outputLevel,ui.muted)}
-  if(ui.muted)Text("MICROPHONE MUTED")else if(ui.inputActive)Text("INPUT AUDIO ACTIVE")
-  if(ui.playback)Text("Gemini audio playing")
+  Text(when(ui.phase){GeminiPhase.USER_SPEAKING->"INPUT AUDIO ACTIVITY";GeminiPhase.ASSISTANT_SPEAKING->"OUTPUT AUDIO ACTIVITY";else->ui.phase.name.replace('_',' ')},style=MaterialTheme.typography.titleMedium)
+  if(ui.playback)Text("Native output has pending audio; physical audibility requires device verification.",style=MaterialTheme.typography.bodySmall)
   ui.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};ui.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
   Text("Start sends microphone audio directly to Google. Your key is encrypted on this device. No OpenAI account or backend is needed for personal API-key mode. Free-tier availability, model access and quota depend on Google and your account.",style=MaterialTheme.typography.bodySmall)
   if(ui.active){MeasuredWaveform("Microphone PCM",ui.microphoneLevel,ui.microphoneSamples,ui.microphoneSamples>0,ui.muted);MeasuredWaveform("Gemini playback PCM",ui.outputLevel,ui.outputSamples,ui.outputSamples>0,false)
@@ -54,7 +54,7 @@ import com.raaz.assistant.ui.JarvisFace
   Text("For distributing a production app, provision short-lived Gemini tokens from a trusted backend instead of distributing a shared API key. This personal mode stores only the key you enter; no key is embedded in the APK.",style=MaterialTheme.typography.bodySmall)
  }
  Row(Modifier.fillMaxWidth().padding(12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-  Button(onClick={if(ui.active)controller.stop()else permission.launch(Manifest.permission.RECORD_AUDIO)},modifier=Modifier.weight(1f).heightIn(min=48.dp)){Text(if(ui.active) "STOP" else "START")}
+  Button(enabled=ui.phase!=GeminiPhase.DISCONNECTING,onClick={if(ui.active)controller.stop()else permission.launch(Manifest.permission.RECORD_AUDIO)},modifier=Modifier.weight(1f).heightIn(min=48.dp)){Text(if(ui.active) "STOP" else "START")}
   if(ui.active)OutlinedButton(enabled=ui.ready,onClick=controller::mute,modifier=Modifier.weight(1f).heightIn(min=48.dp)){Text(if(ui.muted) "Unmute" else "Mute")}
  }
  }

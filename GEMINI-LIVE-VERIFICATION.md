@@ -1,3 +1,5 @@
+> Historical results only. See [RELIABILITY-REPORT.md](RELIABILITY-REPORT.md) for this version and actual current test results.
+
 # Gemini Live implementation verification — 2026-11-11
 
 ## Implemented and build verified

@@ -1,3 +1,5 @@
+> Historical implementation guide. Current reliability behavior, verification and setup are in [RELIABILITY-REPORT.md](RELIABILITY-REPORT.md) and [RELIABILITY-GUIDE.md](RELIABILITY-GUIDE.md). In the current version `goAway` honors its advertised grace period, and STOP cancels the socket immediately rather than waiting for queued audio.
+
 # JARVIS — Gemini native Live voice
 
 The app's native voice entry is now **Home → Gemini Live**. It uses Google's Gemini Live WebSocket protocol, not OpenAI/GPT-Live, WebRTC SDP, SpeechRecognizer or Android TTS. You do not need an OpenAI account, the old backend, or a backend URL for the personal API-key mode. Legacy source/modules and existing provider/history data remain intact; the active app wiring uses GeminiLiveController and GeminiLiveScreen.
