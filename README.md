@@ -1,3 +1,10 @@
+# Download JARVIS for Android
+
+- [Download Gemini Live APK](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live.apk)
+- [Download Android Studio source ZIP](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live-Source.zip)
+
+Open Home → Gemini Live, enter your own Google AI Studio API key, save settings and press START. This development build compiled successfully and passed 43 JVM tests; real-device audio and live Gemini connectivity have not been verified. Google account quotas and model access apply.
+
 # Current native voice: Gemini Live
 
 Use **Home → Gemini Live** with your own Google AI Studio key. No OpenAI account or backend is required for personal key mode. Start with [GEMINI-LIVE-GUIDE.md](GEMINI-LIVE-GUIDE.md) and [GEMINI-LIVE-VERIFICATION.md](GEMINI-LIVE-VERIFICATION.md). Earlier phase documents and the legacy OpenAI modules/backend below are historical and are not the active native voice path.
