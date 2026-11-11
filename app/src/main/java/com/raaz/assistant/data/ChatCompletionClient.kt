@@ -15,6 +15,7 @@ class ChatCompletionClient internal constructor(private val client:OkHttpClient=
  .connectTimeout(20,TimeUnit.SECONDS).readTimeout(90,TimeUnit.SECONDS).callTimeout(180,TimeUnit.SECONDS).build()) {
  private val active=AtomicReference<Call?>()
  fun cancel(){active.get()?.cancel()}
+ fun close(){cancel();client.connectionPool.evictAll();client.dispatcher.executorService.shutdown()}
  suspend fun complete(url:String,key:String,body:String,streaming:Boolean,onDelta:(String)->Unit):String=suspendCancellableCoroutine { continuation->
   if(!validEndpoint(url)){continuation.resumeWith(Result.failure(IllegalArgumentException("Provider URL must use HTTPS without query or credentials.")));return@suspendCancellableCoroutine}
   val call=try{client.newCall(Request.Builder().url(url).header("Authorization","Bearer $key").post(body.toRequestBody("application/json".toMediaType())).build())}catch(e:Exception){continuation.resumeWith(Result.failure(IllegalArgumentException("Invalid provider configuration.")));return@suspendCancellableCoroutine}

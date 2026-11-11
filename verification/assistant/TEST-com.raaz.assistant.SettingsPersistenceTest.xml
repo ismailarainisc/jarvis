@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.SettingsPersistenceTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-11T12:42:03" hostname="9e5cad0fb6e3" time="0.079">
+  <properties/>
+  <testcase name="profilesKeysAndSelectionSurviveNewRepository" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.014"/>
+  <testcase name="corruptProfilesArePreservedRatherThanOverwritten" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="geminiSettingsPersistWithoutChangingTextProvider" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.037"/>
+  <testcase name="deletingLastLegacyProfileCannotResurrectSecret" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.005"/>
+  <testcase name="keyRotationAndRemovalArePerProfile" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.012"/>
+  <testcase name="missingCredentialGivesActionableError" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="failedEncryptionDoesNotChangeProfileOrKey" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.005"/>
+  <testcase name="legacyCredentialIsReadableWithoutDestructiveMigration" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.0"/>
+  <testcase name="changingDestinationRequiresExplicitNewCredential" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

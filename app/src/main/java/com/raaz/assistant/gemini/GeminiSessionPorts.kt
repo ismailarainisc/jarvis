@@ -42,6 +42,7 @@ interface GeminiAudioSession {
   fun warning(message:String)
   fun failed(failure:GeminiFailure)
  }
+ fun bufferedBytes():Int?=null
  fun requestStop()
  suspend fun start()
  suspend fun enqueue(pcm:ByteArray,generation:Long):Boolean

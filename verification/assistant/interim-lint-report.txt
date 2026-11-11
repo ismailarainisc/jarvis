@@ -1,0 +1,191 @@
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/gemini/GeminiAudioEngine.kt:37: Error: Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with checkPermission) or explicitly handle a potential SecurityException [MissingPermission]
+  record=AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+         ^
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/background/PorcupineWakeCapture.kt:27: Error: Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with checkPermission) or explicitly handle a potential SecurityException [MissingPermission]
+   recorder=AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION).setAudioFormat(AudioFormat.Builder().setSampleRate(model.sampleRate).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()).setBufferSizeInBytes(maxOf(minimum*2,model.frameLength*4)).build()
+            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "MissingPermission":
+   This check scans through your code and libraries and looks at the APIs
+   being used, and checks this against the set of permissions required to
+   access those APIs. If the code using those APIs is called at runtime, then
+   the program will crash.
+
+   Furthermore, for permissions that are revocable (with targetSdkVersion 23),
+   client code must also be prepared to handle the calls throwing an exception
+   if the user rejects the request for permission at runtime.
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/background/BackgroundAssistantService.kt:48: Warning: Field requires API level 30 (current min is 29): android.content.pm.ServiceInfo#FOREGROUND_SERVICE_TYPE_MICROPHONE [InlinedApi]
+   if(!started){val n=notification();if(Build.VERSION.SDK_INT>=29)startForeground(NOTIFICATION,n,ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)else startForeground(NOTIFICATION,n);started=true;BackgroundRuntime.running.value=true}
+                                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/live/LiveAudioDeviceManager.kt:19: Warning: Field requires API level 26 (current min is 23): android.media.AudioDeviceInfo#TYPE_USB_HEADSET [InlinedApi]
+  override fun onAudioDevicesRemoved(removedDevices:Array<out AudioDeviceInfo>){if(!running)return;val selected=lastSelected;val selectedLost=if(Build.VERSION.SDK_INT>=31)selectedRouteWasRemoved(selected,removedDevices.map{it.id})else removedDevices.any{it.isSink&&it.type in setOf(AudioDeviceInfo.TYPE_WIRED_HEADSET,AudioDeviceInfo.TYPE_WIRED_HEADPHONES,AudioDeviceInfo.TYPE_USB_HEADSET,AudioDeviceInfo.TYPE_BLUETOOTH_SCO)};if(selectedLost)lost() else refresh()}
+                                                                                                                                                                                                                                                                                                                                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "InlinedApi":
+   This check scans through all the Android API field references in the
+   application and flags certain constants, such as static final integers and
+   Strings, which were introduced in later versions. These will actually be
+   copied into the class files rather than being referenced, which means that
+   the value is available even when running on older devices. In some cases
+   that's fine, and in other cases it can result in a runtime crash or
+   incorrect behavior. It depends on the context, so consider the code
+   carefully and decide whether it's safe and can be suppressed or whether the
+   code needs to be guarded.
+
+   If you really want to use this API and don't need to support older devices
+   just set the minSdkVersion in your build.gradle or AndroidManifest.xml
+   files.
+
+   If your code is deliberately accessing newer APIs, and you have ensured
+   (e.g. with conditional execution) that this code will only ever be called
+   on a supported platform, then you can annotate your class or method with
+   the @TargetApi annotation specifying the local minimum SDK to apply, such
+   as @TargetApi(11), such that this check considers 11 rather than your
+   manifest file's minimum SDK as the required API level.
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/background/JarvisVoiceInteractionService.kt:14: Error: Call requires API level 26 (current min is 23): android.service.voice.VoiceInteractionSession#startAssistantActivity [NewApi]
+ override fun onShow(args:Bundle?,showFlags:Int){super.onShow(args,showFlags);try{startAssistantActivity(Intent(context,MainActivity::class.java).putExtra("assistant_hub","Tools"));hide()}catch(e:Exception){showWindow()} }
+                                                                                  ~~~~~~~~~~~~~~~~~~~~~~
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/gemini/PcmPlaybackPump.kt:19: Error: Call requires API level 24, or core library desugaring (current min is 23): java.util.concurrent.atomic.AtomicLong#updateAndGet [NewApi]
+ fun invalidate(generation:Long){requestedGeneration.updateAndGet{maxOf(it,generation)}}
+                                                     ~~~~~~~~~~~~
+
+   Explanation for issues of type "NewApi":
+   This check scans through all the Android API calls in the application and
+   warns about any calls that are not available on all versions targeted by
+   this application (according to its minimum SDK attribute in the manifest).
+
+   If you really want to use this API and don't need to support older devices
+   just set the minSdkVersion in your build.gradle or AndroidManifest.xml
+   files.
+
+   If your code is deliberately accessing newer APIs, and you have ensured
+   (e.g. with conditional execution) that this code will only ever be called
+   on a supported platform, then you can annotate your class or method with
+   the @TargetApi annotation specifying the local minimum SDK to apply, such
+   as @TargetApi(11), such that this check considers 11 rather than your
+   manifest file's minimum SDK as the required API level.
+
+   If you are deliberately setting android: attributes in style definitions,
+   make sure you place this in a values-vNN folder in order to avoid running
+   into runtime conflicts on certain devices where manufacturers have added
+   custom attributes whose ids conflict with the new ones on later platforms.
+
+   Similarly, you can use tools:targetApi="11" in an XML file to indicate that
+   the element will only be inflated in an adequate context.
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/res/xml/voice_interaction.xml:1: Warning: Attribute supportsLocalInteraction is only used in API level 24 and higher (current min is 23) [UnusedAttribute]
+<voice-interaction-service xmlns:android="http://schemas.android.com/apk/res/android" android:recognitionService="com.raaz.assistant.background.AssistantRecognitionService" android:sessionService="com.raaz.assistant.background.JarvisVoiceSessionService" android:supportsAssist="true" android:supportsLaunchVoiceAssistFromKeyguard="false" android:supportsLocalInteraction="true" />
+                                                                                                                                                                                                                                                                                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "UnusedAttribute":
+   This check finds attributes set in XML files that were introduced in a
+   version newer than the oldest version targeted by your application (with
+   the minSdkVersion attribute).
+
+   This is not an error; the application will simply ignore the attribute.
+   However, if the attribute is important to the appearance or functionality
+   of your application, you should consider finding an alternative way to
+   achieve the same result with only available attributes, and then you can
+   optionally create a copy of the layout in a layout-vNN folder which will be
+   used on API NN or higher where you can take advantage of the newer
+   attribute.
+
+   Note: This check does not only apply to attributes. For example, some tags
+   can be unused too, such as the new <tag> element in layouts introduced in
+   API 21.
+
+/workspace/github-upload/jarvis-gemini-live/app/build.gradle.kts:18: Warning: A newer version of androidx.activity:activity-compose than 1.9.3 is available: 1.13.0 [GradleDependency]
+    implementation("androidx.activity:activity-compose:1.9.3")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/github-upload/jarvis-gemini-live/app/build.gradle.kts:22: Warning: A newer version of androidx.lifecycle:lifecycle-viewmodel-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/github-upload/jarvis-gemini-live/app/build.gradle.kts:23: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-compose than 2.8.7 is available: 2.11.0 [GradleDependency]
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/ui/JarvisApp.kt:86: Warning: Composable functions with a return type should start with a lowercase letter [ComposableNaming from androidx.compose.runtime]
+@Composable private fun JarvisOrbitPhase():Float {val infinite=rememberInfiniteTransition(label="decorative orbit");val phase by infinite.animateFloat(0f,1f,infiniteRepeatable(tween(4000,easing=LinearEasing)),label="decorative orbit");return phase}
+                        ~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "ComposableNaming":
+   @Composable functions without a return type should use similar naming to
+   classes, starting with an uppercase letter and ending with a noun.
+   @Composable functions with a return type should be treated as normal Kotlin
+   functions, starting with a lowercase letter.
+
+   Vendor: Jetpack Compose
+   Identifier: androidx.compose.runtime
+   Feedback: https://issuetracker.google.com/issues/new?component=612128
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/AndroidManifest.xml:6: Error: Permission exists without corresponding hardware <uses-feature android:name="android.hardware.telephony" required="false"> tag [PermissionImpliesUnsupportedChromeOsHardware]
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+     ~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "PermissionImpliesUnsupportedChromeOsHardware":
+   The <uses-permission> element should not require a permission that implies
+   an unsupported large screen hardware feature. Google Play assumes that
+   certain hardware related permissions indicate that the underlying hardware
+   features are required by default. To fix the issue, consider declaring the
+   corresponding <uses-feature> element with required="false" attribute.
+
+   https://developer.android.com/topic/arc/manifest.html#implied-features
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/AndroidManifest.xml:12: Warning: The attribute android:allowBackup is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute android:dataExtractionRules specifying an @xml resource which configures cloud backups and device transfers on Android 12 and higher. [DataExtractionRules]
+    <application android:allowBackup="false" android:label="JARVIS" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:usesCleartextTraffic="false" android:supportsRtl="true">
+                                      ~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/AndroidManifest.xml:12: Warning: Should explicitly set android:icon, there is no default [MissingApplicationIcon]
+    <application android:allowBackup="false" android:label="JARVIS" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:usesCleartextTraffic="false" android:supportsRtl="true">
+     ~~~~~~~~~~~
+
+   Explanation for issues of type "MissingApplicationIcon":
+   You should set an icon for the application as whole because there is no
+   default. This attribute must be set as a reference to a drawable resource
+   containing the image (for example @drawable/icon).
+
+   https://developer.android.com/studio/publish/preparing#publishing-configure
+
+/workspace/github-upload/jarvis-gemini-live/app/src/main/java/com/raaz/assistant/background/JarvisVoiceInteractionService.kt:15: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+ private fun showWindow(){setContentView(android.widget.TextView(context).apply{text="Open JARVIS from your launcher. Android could not launch the assistant screen.";setPadding(32,32,32,32)})}
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+5 errors, 10 warnings

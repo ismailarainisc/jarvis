@@ -1,0 +1,12 @@
+Observed UTC: 2026-11-11T12:40:56.472490+00:00
+Baseline: 188f2bfd77936d3edca2e96b79b819cef568895c
+JDK17 / Android SDK35 / Gradle wrapper8.9
+Android emulator installed: False
+KVM device exists: False
+Google credential present: False
+Picovoice credential present: False
+adb devices:
+List of devices attached
+
+
+No physical device/provider/SDK activation or real communication/MCP side effects were tested.

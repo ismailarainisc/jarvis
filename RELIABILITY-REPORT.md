@@ -1,3 +1,5 @@
+> Historical 5.1 snapshot. The current 6.0 source, capability limits and actual evidence are in [ASSISTANT-VERIFICATION.md](ASSISTANT-VERIFICATION.md) and [ASSISTANT-GUIDE.md](ASSISTANT-GUIDE.md). Foreground voice still stops with its screen; the new opt-in background service is separate.
+
 # JARVIS 5.1 reliability engineering evidence
 
 Date: 2026-11-11. Baseline inspected: `91502d09e8493ea568636012439ca72edde06a2e` on `main`. Scope: existing Gemini native Live, foreground fallback coordination, credential/history safety and text-request cancellation. Package identity remains `com.raaz.assistant` (versionCode 7). No new branch, history rewrite or forced push is used, following the owner's final instruction.

@@ -29,7 +29,7 @@ import com.raaz.assistant.ui.JarvisFace
  Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
   Text("Gemini Live",style=MaterialTheme.typography.headlineSmall);Text("Google AI Studio · native Gemini audio")
   Text("Connection: ${ui.connection}",color=if(ui.connection=="ERROR")MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-  val face=when(ui.phase){GeminiPhase.ERROR->AssistantState.ERROR;GeminiPhase.ASSISTANT_SPEAKING->AssistantState.SPEAKING;GeminiPhase.LISTENING,GeminiPhase.USER_SPEAKING->AssistantState.LISTENING;GeminiPhase.PROCESSING->AssistantState.PROCESSING;GeminiPhase.INTERRUPTED->AssistantState.INTERRUPTED;GeminiPhase.CONNECTING,GeminiPhase.SETTING_UP,GeminiPhase.DISCONNECTING->AssistantState.CONNECTING;GeminiPhase.STOPPED->AssistantState.STOPPED;else->AssistantState.IDLE}
+  val face=ui.phase.visualState()
   Box(Modifier.fillMaxWidth(),contentAlignment=Alignment.Center){JarvisFace(face,ui.microphoneLevel,ui.outputLevel,ui.muted)}
   Text(when(ui.phase){GeminiPhase.USER_SPEAKING->"INPUT AUDIO ACTIVITY";GeminiPhase.ASSISTANT_SPEAKING->"OUTPUT AUDIO ACTIVITY";else->ui.phase.name.replace('_',' ')},style=MaterialTheme.typography.titleMedium)
   if(ui.playback)Text("Native output has pending audio; physical audibility requires device verification.",style=MaterialTheme.typography.bodySmall)

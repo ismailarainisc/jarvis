@@ -1,11 +1,13 @@
-# Android downloads — JARVIS 5.1 reliability
+# JARVIS 6.0 — verified development downloads
 
-- [Download Gemini Live APK](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live.apk)
-- [Download complete Android Studio source ZIP](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live-Source.zip)
+- [Android APK](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live.apk)
+- [Complete Android Studio source ZIP](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live-Source.zip)
 - [SHA-256 checksums](SHA256SUMS)
-- [Actual build/test evidence and remaining limitations](../RELIABILITY-REPORT.md)
-- [Setup and real-device checklist](../RELIABILITY-GUIDE.md)
+- [Actual implementation/evidence and unsupported capabilities](../ASSISTANT-VERIFICATION.md)
+- [Setup, permissions, privacy and real-device checklist](../ASSISTANT-GUIDE.md)
 
-VersionCode 7, versionName 5.1-reliability, package com.raaz.assistant. Development APK signed with the previous workspace development certificate; private signing key is excluded. The clean debug/test-APK build and all 116 JVM tests passed; retained backend fixtures 9/9 passed. Real Android audio, instrumentation execution, upgrades and live Gemini provider verification remain NOT TESTED because no device/emulator or Google credential was available.
+VersionCode8 / 6.0-assistant / com.raaz.assistant. Development APK signed with the previous workspace certificate; private signing key is excluded. Clean debug/test-APK build passed; 177 JVM tests passed; lint 0 errors / 3 dependency-update warnings; unchanged backend fixtures 9/9 passed.
 
-Native mode requires your own Google AI Studio credential, supported Live model/voice and account quota. Saving a key is not a successful connection test. Source ZIP excludes generated builds, local secrets and the large APK/ZIP download files, avoiding nested archives; all source, wrapper, tests and evidence are included.
+New source implements tools, contact aliases, approved calls/composers, memory, MCP, background wake handoff, assistant-role foundation, scoped navigation and diagnostics. Google/Picovoice, real devices, calls/messages, accessibility and external MCP verification remain NOT TESTED. Wake mode requires your own Picovoice AccessKey/license/activation plus Google configuration. No universal app control, automatic personal WhatsApp/SMS sending, lock bypass or production-readiness claim.
+
+The source ZIP excludes generated builds and the large APK/ZIP download files, while retaining source, wrapper, tests, backend and evidence.

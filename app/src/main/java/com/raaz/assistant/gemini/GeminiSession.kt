@@ -19,7 +19,8 @@ class GeminiSession(
  private val ownership:AudioOwnership=AudioOwnership.process,
  private val beforeStart:()->Unit={},
  private val clock:()->Long={System.nanoTime()/1_000_000},
- private val parserDispatcher:CoroutineDispatcher=Dispatchers.Default
+ private val parserDispatcher:CoroutineDispatcher=Dispatchers.Default,
+ private val toolBridge:GeminiToolBridge?=null
 ) {
  private sealed class Wire { object Open:Wire();data class Message(val text:String):Wire();data class Failed(val failure:GeminiFailure):Wire();data class Closed(val code:Int):Wire() }
  private data class Envelope(val event:Wire,val chars:Int=0)
@@ -58,7 +59,7 @@ class GeminiSession(
     for(envelope in s.inbox){try{
      if(!valid(s))break
      when(val event=envelope.event){
-      Wire.Open->{if(!s.setupSent){s.setupSent=true;update(s,state.value.copy(phase=GeminiPhase.SETTING_UP));if(s.connection?.send(setup)!=true)throw GeminiFailure(GeminiErrorCode.NETWORK,"Could not send Gemini setup. Check the network.")}}
+      Wire.Open->{if(!s.setupSent){s.setupSent=true;update(s,state.value.copy(phase=GeminiPhase.SETTING_UP));val selectedSetup=if(toolBridge==null)setup else withContext(parserDispatcher){geminiSetup(configuration.model,configuration.voice,toolBridge.declarations(),toolBridge.preferences())};if(!valid(s))break;if(s.connection?.send(selectedSetup)!=true)throw GeminiFailure(GeminiErrorCode.NETWORK,"Could not send Gemini setup. Check the network.")}}
       is Wire.Message->{val parsed=withContext(parserDispatcher){decodeGeminiEvent(event.text)};if(valid(s))handle(s,parsed)}
       is Wire.Failed->terminate(s,event.failure)
       is Wire.Closed->terminate(s,closedFailure(event.code))
@@ -67,7 +68,7 @@ class GeminiSession(
     finally{s.inboxChars.addAndGet(-envelope.chars)}}
    }
    s.timeout=scope.launch{delay(25000);if(valid(s)&&!state.value.ready)terminate(s,GeminiFailure(GeminiErrorCode.TIMEOUT,"Timed out waiting for Gemini setupComplete. Check the key, model access and network."))}
-   s.monitor=scope.launch{while(valid(s)){delay(200);if(!valid(s))break;if(!recordingAllowed(s)){terminate(s,GeminiFailure(GeminiErrorCode.PERMISSION,"Microphone permission or foreground access was lost. Return to the app and grant access before restarting."));break};update(s,state.value.copy(sentBytes=s.input?.bytesQueued()?:0))}}
+   s.monitor=scope.launch{while(valid(s)){delay(200);if(!valid(s))break;if(!recordingAllowed(s)){terminate(s,GeminiFailure(GeminiErrorCode.PERMISSION,"Microphone permission or foreground access was lost. Return to the app and grant access before restarting."));break};val buffered=withContext(parserDispatcher){s.audio?.bufferedBytes()};if(valid(s))update(s,state.value.copy(sentBytes=s.input?.bytesQueued()?:0,socketBacklogBytes=s.connection?.queuedBytes()?:0,bufferedPlaybackBytes=buffered))}}
    s.connection!!.open(auth)
   }catch(e:GeminiFailure){terminate(s,e)}catch(e:Exception){terminate(s,GeminiFailure(GeminiErrorCode.AUDIO_BUSY,"Unable to initialize voice resources. Check microphone and audio availability."))}
  }
@@ -89,7 +90,7 @@ class GeminiSession(
  }
  private suspend fun handle(s:Session,event:GeminiServerEvent){
   event.failure?.let{throw it}
-  if(event.unsupportedTool)throw GeminiFailure(GeminiErrorCode.UNSUPPORTED_TOOL,"The model requested an unsupported tool. Restart without tool configuration.")
+  if(event.unsupportedTool&&toolBridge==null)throw GeminiFailure(GeminiErrorCode.UNSUPPORTED_TOOL,"The model requested an unsupported tool. Restart without tool configuration.")
   if(event.ready&&!state.value.ready){
    if(!s.setupSent)throw GeminiFailure(GeminiErrorCode.PROTOCOL,"Gemini sent readiness before setup was sent.")
    if(s.platform?.canRecord()!=true)throw GeminiFailure(GeminiErrorCode.PERMISSION,"Microphone access was lost before capture started.")
@@ -97,6 +98,13 @@ class GeminiSession(
    val audio=audioFactory.create(s.input!!,audioEvents(s));s.audio=audio
    try{audio.start()}catch(e:CancellationException){throw e}catch(e:GeminiFailure){throw e}catch(e:Exception){throw GeminiFailure(GeminiErrorCode.CAPTURE,"Native microphone or playback initialization failed. Check device support and permission.")}
    if(!valid(s))return
+  }
+  if(event.cancelledFunctions.isNotEmpty())toolBridge?.cancel(s.owner,event.cancelledFunctions)
+  if(event.functions.isNotEmpty()){
+   if(!state.value.ready)throw GeminiFailure(GeminiErrorCode.PROTOCOL,"Tool call arrived before session readiness.")
+   val responses=org.json.JSONArray()
+   for(call in event.functions){val result=toolBridge?.propose(s.owner,call)?:org.json.JSONObject().put("status","unsupported");if(!valid(s))return;responses.put(org.json.JSONObject().put("id",call.id).put("name",call.name).put("response",result))}
+   if(s.connection?.send(org.json.JSONObject().put("toolResponse",org.json.JSONObject().put("functionResponses",responses)).toString())!=true)throw GeminiFailure(GeminiErrorCode.NETWORK,"Could not acknowledge tool proposals.")
   }
   if(event.goAway){
    update(s,state.value.copy(notice="Gemini announced that this session will expire. It will not reconnect or create a billable session automatically."))
@@ -137,7 +145,7 @@ class GeminiSession(
  fun stop(){current?.let{terminate(it,null)}}
  private fun terminate(s:Session,failure:GeminiFailure?){
   if(!valid(s))return
-  current=null;s.live.set(false);s.input?.stop();s.timeout?.cancel();s.monitor?.cancel();s.expiry?.cancel();s.inbox.cancel();s.loop?.cancel()
+  current=null;s.live.set(false);toolBridge?.finished(s.owner);s.input?.stop();s.timeout?.cancel();s.monitor?.cancel();s.expiry?.cancel();s.inbox.cancel();s.loop?.cancel()
   try{s.connection?.cancel()}catch(e:Exception){s.cleanupIssue=true};try{s.audio?.requestStop()}catch(e:Exception){s.cleanupIssue=true}
   mutable.value=state.value.copy(phase=GeminiPhase.DISCONNECTING,ready=false,muted=false,capture=false,playback=false,microphoneLevel=0f,outputLevel=0f,inputActive=false,outputActive=false,sentBytes=s.input?.bytesQueued()?:0,error=failure?.message,errorCode=failure?.code)
   closing=scope.launch {
@@ -152,6 +160,6 @@ class GeminiSession(
   }
  }
  suspend fun stopAndAwait(){stop();closing?.join()}
- suspend fun shutdown(){shuttingDown=true;stopAndAwait();connections.close()}
+ suspend fun shutdown(){shuttingDown=true;stopAndAwait();val clean=com.raaz.assistant.live.AudioResourceCleanup().close(listOf({connections.close()},{toolBridge?.close();Unit}));if(!clean)mutable.value=state.value.copy(phase=GeminiPhase.ERROR,errorCode=GeminiErrorCode.CLEANUP,error="Network or feature storage cleanup failed. Restart the app.")}
  private fun appendCaption(previous:String,delta:String):String {val result=(previous+delta).takeLast(16000);return if(result.firstOrNull()?.isLowSurrogate()==true)result.drop(1)else result}
 }

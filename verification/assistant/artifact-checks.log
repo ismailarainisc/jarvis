@@ -1,0 +1,10 @@
+PASS: package: name='com.raaz.assistant' versionCode='8' versionName='6.0-assistant' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'
+PASS: apksigner verify and zipalign -P16 checks returned 0.
+PASS: previous development certificate matches: 91cf099174951ce2d669a696a9277f85f93001198ba685ee6b2a19ef3fcd4aa5
+APK SHA-256: 9fe5eaf6d388f2ab118423657363b895b40f15fe0335f508e6bf1eb6b88b048f
+lib/arm64-v8a/libandroidx.graphics.path.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True
+lib/arm64-v8a/libjingle_peerconnection_so.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True
+lib/arm64-v8a/libpv_porcupine.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True
+lib/x86_64/libandroidx.graphics.path.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True
+lib/x86_64/libjingle_peerconnection_so.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True
+lib/x86_64/libpv_porcupine.so ELF PT_LOAD alignment: ['0x4000', '0x4000', '0x4000']; >=16KiB: True

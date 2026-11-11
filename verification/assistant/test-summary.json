@@ -1,0 +1,24 @@
+{
+  "jvm": {
+    "tests": 177,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 3,
+    "warningType": "GradleDependency version update suggestions"
+  },
+  "backend": {
+    "tests": 9,
+    "pass": 9,
+    "fail": 0
+  },
+  "instrumentation": "APK compiled, not executed",
+  "real_device": "NOT TESTED",
+  "Google_Gemini": "NOT TESTED",
+  "Picovoice_activation": "NOT TESTED",
+  "external_MCP": "NOT TESTED",
+  "calls_messages": "NOT TESTED"
+}

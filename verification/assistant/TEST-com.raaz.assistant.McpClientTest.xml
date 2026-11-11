@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.McpClientTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-11T12:42:01" hostname="9e5cad0fb6e3" time="1.599">
+  <properties/>
+  <testcase name="sseResponsesAreParsedByEventBoundaries" classname="com.raaz.assistant.McpClientTest" time="0.295"/>
+  <testcase name="revocationDuringDiscoveryPreventsActualToolCall" classname="com.raaz.assistant.McpClientTest" time="0.188"/>
+  <testcase name="mismatchedResponseIdFails" classname="com.raaz.assistant.McpClientTest" time="0.03"/>
+  <testcase name="unsafeEndpointIsRejectedBeforeSending" classname="com.raaz.assistant.McpClientTest" time="0.015"/>
+  <testcase name="disabledServerCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.045"/>
+  <testcase name="declaredToolErrorsAreNotSuccessfulResults" classname="com.raaz.assistant.McpClientTest" time="0.214"/>
+  <testcase name="approvedAllowedToolActuallyCallsServerOnce" classname="com.raaz.assistant.McpClientTest" time="0.204"/>
+  <testcase name="unapprovedToolCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.012"/>
+  <testcase name="unsupportedArgumentsNeverReachToolCall" classname="com.raaz.assistant.McpClientTest" time="0.183"/>
+  <testcase name="cancelledRequestReleasesNonrespondingSocket" classname="com.raaz.assistant.McpClientTest" time="0.143"/>
+  <testcase name="realInitializeNotificationDiscoveryAndDelete" classname="com.raaz.assistant.McpClientTest" time="0.153"/>
+  <testcase name="schemaValidationIsConservative" classname="com.raaz.assistant.McpClientTest" time="0.0"/>
+  <testcase name="authenticationFailureNeverExposesResponseBody" classname="com.raaz.assistant.McpClientTest" time="0.024"/>
+  <testcase name="redirectsDoNotForwardCredentials" classname="com.raaz.assistant.McpClientTest" time="0.083"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

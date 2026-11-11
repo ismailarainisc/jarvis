@@ -1,0 +1,3 @@
+PASS: no SEND_SMS / READ_SMS / QUERY_ALL_PACKAGES / RECEIVE_BOOT_COMPLETED declared.
+PASS: background microphone service is not exported.
+PASS: limited credential-pattern scan of main source found no matching Google/OpenAI/GitHub keys. This is not a comprehensive secrets/security certification.

@@ -20,4 +20,6 @@ class PcmPlaybackPumpTest {
  @Test fun invalidPcmAndChunkCountAreBounded(){val p=PcmPlaybackPump(Output(),maxBytes=8,maxChunks=2);assertFalse(p.enqueue(ByteArray(0),0));assertFalse(p.enqueue(ByteArray(3),0));assertTrue(p.enqueue(ByteArray(2),0));assertTrue(p.enqueue(ByteArray(2),0));assertFalse(p.enqueue(ByteArray(2),0))}
  @Test fun closeIsIdempotentAndRejectsFutureAudio(){val o=Output();val p=PcmPlaybackPump(o);p.enqueue(ByteArray(4),0);p.close();p.close();assertEquals(1,o.flushes);assertEquals(0,p.retainedBytes());assertFalse(p.enqueue(ByteArray(4),0));assertFalse(p.step(100).active)}
  @Test fun repeatedGenerationsDoNotResurrectOldAudio(){val o=Output();val p=PcmPlaybackPump(o);repeat(20){i->p.invalidate(i.toLong());assertTrue(p.enqueue(ByteArray(2),i.toLong()));assertFalse(p.enqueue(ByteArray(2),i.toLong()-1));p.step(i.toLong())};assertEquals(19,o.flushes)}
+ @Test fun concurrentInvalidationUsesMonotonicApi23CompatibleCas(){val p=PcmPlaybackPump(Output());val workers=(1..32).map{generation->Thread{repeat(100){p.invalidate(generation.toLong())}}.also{it.start()}};workers.forEach{it.join(5000);assertFalse(it.isAlive)};assertEquals(32L,p.step(0).generation);assertFalse(p.enqueue(ByteArray(2),31));assertTrue(p.enqueue(ByteArray(2),32))}
+
 }

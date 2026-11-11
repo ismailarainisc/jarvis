@@ -1,3 +1,5 @@
+> Historical 5.1 snapshot. The current 6.0 source, capability limits and actual evidence are in [ASSISTANT-VERIFICATION.md](ASSISTANT-VERIFICATION.md) and [ASSISTANT-GUIDE.md](ASSISTANT-GUIDE.md). Foreground voice still stops with its screen; the new opt-in background service is separate.
+
 # Configure and verify JARVIS 5.1
 
 ## Installation and personal Google configuration

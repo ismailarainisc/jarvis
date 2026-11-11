@@ -26,6 +26,7 @@ class GeminiAudioEngine(
  private var reader:Thread?=null;private var player:Thread?=null
  private var started=false;private var closed=false;private var cleanupSucceeded=true
  private val micMeter=PcmLevelMeter();private val outputMeter=PcmLevelMeter()
+ override fun bufferedBytes():Int?=pump?.retainedBytes()
  override fun requestStop(){stopRequested=true}
  override suspend fun start()=withContext(io){lifecycle.withLock{
   check(!started&&!closed){"An audio engine cannot be reused."};started=true
@@ -33,9 +34,9 @@ class GeminiAudioEngine(
   authorized()
   val minimum=AudioRecord.getMinBufferSize(16000,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT)
   if(minimum<=0)throw GeminiFailure(GeminiErrorCode.CAPTURE,"This device does not support the required 16 kHz microphone format.")
-  record=AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+  record=try{AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
    .setAudioFormat(AudioFormat.Builder().setSampleRate(16000).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_IN_MONO).build())
-   .setBufferSizeInBytes(maxOf(minimum*2,6400)).build()
+   .setBufferSizeInBytes(maxOf(minimum*2,6400)).build()}catch(e:SecurityException){throw GeminiFailure(GeminiErrorCode.PERMISSION,"Microphone permission was revoked during initialization.")}
   if(record!!.state!=AudioRecord.STATE_INITIALIZED)throw GeminiFailure(GeminiErrorCode.CAPTURE,"Microphone initialization failed. Check device audio support.")
   authorized();configureEffects(record!!.audioSessionId)
   val outputMinimum=AudioTrack.getMinBufferSize(24000,AudioFormat.CHANNEL_OUT_MONO,AudioFormat.ENCODING_PCM_16BIT)

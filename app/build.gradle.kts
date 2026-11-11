@@ -2,7 +2,7 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "com.raaz.assistant"
     compileSdk = 35
-    defaultConfig { applicationId = "com.raaz.assistant"; minSdk = 23; targetSdk = 35; versionCode = 7; versionName = "5.1-reliability"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.raaz.assistant"; minSdk = 23; targetSdk = 35; versionCode = 8; versionName = "6.0-assistant"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     buildFeatures { compose = true }
     composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation("io.github.webrtc-sdk:android:150.7871.04")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("ai.picovoice:porcupine-android:4.0.2")
     val bom = platform("androidx.compose:compose-bom:2024.09.03")
     implementation(bom); androidTestImplementation(bom)
     implementation("androidx.activity:activity-compose:1.9.3")

@@ -40,7 +40,7 @@ class OkHttpGeminiConnections internal constructor(
   override fun queuedBytes()=socket?.queueSize()?:0L
   override fun cancel(){cancelled=true;socket?.cancel();socket=null}
  }
- override fun close(){client.dispatcher.cancelAll();client.connectionPool.evictAll()}
+ override fun close(){client.dispatcher.cancelAll();client.connectionPool.evictAll();client.dispatcher.executorService.shutdown()}
 }
 class AndroidGeminiPlatforms(private val context:Context,private val foreground:()->Boolean):GeminiPlatformFactory {
  override fun create(onError:(GeminiFailure)->Unit,onRoutes:(List<LiveAudioRoute>,Int?,String?)->Unit)=object:GeminiPlatform{

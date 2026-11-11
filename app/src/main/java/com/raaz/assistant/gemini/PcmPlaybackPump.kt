@@ -16,7 +16,7 @@ class PcmPlaybackPump(private val output:PcmOutput,private val maxBytes:Int=MAX_
  private val queue=ArrayDeque<Chunk>();private var current:Chunk?=null;private var retained=0;private var active=false;private var closed=false
  private var frames=0L;private var baseline=output.headFrames();private var lastHead=0L;private var lastProgress:Long?=null;private var lastHeadProgress:Long?=null
  /** Invalidation is lock-free: an event/UI thread never waits on a native AudioTrack call. */
- fun invalidate(generation:Long){requestedGeneration.updateAndGet{maxOf(it,generation)}}
+ fun invalidate(generation:Long){while(true){val previous=requestedGeneration.get();if(generation<=previous||requestedGeneration.compareAndSet(previous,generation))return}}
  private fun flushIfNeeded(){val generation=requestedGeneration.get();if(appliedGeneration!=generation){queue.clear();current=null;retained=0;output.flush(true);appliedGeneration=generation;active=false;frames=0;baseline=output.headFrames();lastHead=0;lastProgress=null;lastHeadProgress=null}}
  fun flushPending()=synchronized(lock){if(!closed)flushIfNeeded()}
  fun enqueue(pcm:ByteArray,generation:Long):Boolean=synchronized(lock){

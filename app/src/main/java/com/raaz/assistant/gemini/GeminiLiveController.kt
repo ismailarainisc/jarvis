@@ -15,7 +15,7 @@ class GeminiLiveController(context:Context,beforeStart:()->Unit){
  private var destroyed=false
  private val session=GeminiSession(scope,OkHttpGeminiConnections(),
   GeminiAudioFactory{input,events->GeminiAudioEngine(input,events,{foreground&&visible&&androidx.core.content.ContextCompat.checkSelfPermission(app,android.Manifest.permission.RECORD_AUDIO)==android.content.pm.PackageManager.PERMISSION_GRANTED})},
-  AndroidGeminiPlatforms(app){foreground&&visible},beforeStart=beforeStart,clock={SystemClock.elapsedRealtime()})
+  AndroidGeminiPlatforms(app){foreground&&visible},beforeStart=beforeStart,clock={SystemClock.elapsedRealtime()},toolBridge=AndroidGeminiToolBridge(app))
  val state=session.state
  fun setForeground(value:Boolean){foreground=value;if(!value)session.stop()}
  fun setScreenVisible(value:Boolean){visible=value;if(!value)session.stop()}

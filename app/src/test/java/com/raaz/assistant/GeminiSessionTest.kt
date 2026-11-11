@@ -32,17 +32,17 @@ class GeminiSessionTest {
   override fun selectRoute(id:Int){if(routeFailure)throw IllegalStateException("fixture route failure");selected.add(id)}
   override fun release():Boolean{releases++;return true}
  }
- private class Fixture(test:TestScope) {
+ private class Fixture(test:TestScope,bridge:GeminiToolBridge?=null) {
   val dispatcher=StandardTestDispatcher(test.testScheduler);val scope=CoroutineScope(SupervisorJob()+dispatcher);val ownership=AudioOwnership();val platform=Platform()
   val connections=mutableListOf<Connection>();val audios=mutableListOf<Audio>();var platformFailure:((GeminiFailure)->Unit)?=null
   var startHold:CompletableDeferred<Unit>?=null
   val session=GeminiSession(scope,object:GeminiConnectionFactory{override fun create(listener:GeminiConnection.Listener)=Connection(listener).also{connections.add(it)}},
    GeminiAudioFactory{input,events->Audio(input,events).also{it.holdStart=startHold;audios.add(it)}},
-   object:GeminiPlatformFactory{override fun create(onError:(GeminiFailure)->Unit,onRoutes:(List<LiveAudioRoute>,Int?,String?)->Unit):GeminiPlatform{platformFailure=onError;return platform}},ownership,clock={test.testScheduler.currentTime},parserDispatcher=dispatcher)
+   object:GeminiPlatformFactory{override fun create(onError:(GeminiFailure)->Unit,onRoutes:(List<LiveAudioRoute>,Int?,String?)->Unit):GeminiPlatform{platformFailure=onError;return platform}},ownership,clock={test.testScheduler.currentTime},parserDispatcher=dispatcher,toolBridge=bridge)
   fun start(){session.start(GeminiConfiguration(DEFAULT_GEMINI_LIVE_MODEL,"Kore","isolated-test-key"))}
  }
- private fun scenario(block:suspend TestScope.(Fixture)->Unit)=runTest {
-  val f=Fixture(this)
+ private fun scenario(bridge:GeminiToolBridge?=null,block:suspend TestScope.(Fixture)->Unit)=runTest {
+  val f=Fixture(this,bridge)
   try{block(f)}finally{f.audios.forEach{it.holdStart?.complete(Unit);it.holdClose?.complete(Unit)};f.session.stopAndAwait();runCurrent();f.scope.cancel()}
  }
  private fun TestScope.ready(f:Fixture){f.start();f.connections.last().events.opened();runCurrent();f.connections.last().events.message("{\"setupComplete\":{}}");runCurrent()}
@@ -81,5 +81,16 @@ class GeminiSessionTest {
  @Test fun invalidConfigurationDoesNotAcquireAudioOrConnect()=scenario{f->f.session.start(GeminiConfiguration("bad/model","Kore","fixture"));runCurrent();assertEquals(GeminiErrorCode.CONFIGURATION,f.session.state.value.errorCode);assertTrue(f.connections.isEmpty());assertEquals(0,f.platform.acquires);assertFalse(f.ownership.occupied())}
  @Test fun nativeCaptureFailureReleasesPlatformAndSocket()=scenario{f->ready(f);f.audios[0].events.failed(GeminiFailure(GeminiErrorCode.CAPTURE,"fixture capture error"));runCurrent();assertEquals(GeminiErrorCode.CAPTURE,f.session.state.value.errorCode);assertEquals(1,f.platform.releases);assertEquals(1,f.connections[0].cancelCount);assertFalse(f.ownership.occupied())}
  @Test fun disconnectedSocketRequiresManualRestart()=scenario{f->ready(f);f.connections[0].events.closed(1006);runCurrent();assertEquals(GeminiErrorCode.SESSION_ENDED,f.session.state.value.errorCode);advanceTimeBy(30000);runCurrent();assertEquals(1,f.connections.size);assertEquals(1,f.audios[0].closes)}
+
+ private class Bridge:GeminiToolBridge {
+  val proposed=mutableListOf<GeminiFunctionCall>();val cancelled=mutableListOf<String>()
+  override fun declarations()=com.raaz.assistant.features.ToolRegistry.declarations()
+  override suspend fun propose(session:String,call:GeminiFunctionCall):org.json.JSONObject{proposed.add(call);return org.json.JSONObject().put("status","needs_approval").put("requestId","fixture-task")}
+  override suspend fun cancel(session:String,ids:List<String>){cancelled.addAll(ids)}
+ }
+ @Test fun providerToolCallOnlyAcknowledgesPendingApproval() {val bridge=Bridge();scenario(bridge){f->ready(f);f.connections[0].events.message("""{"toolCall":{"functionCalls":[{"id":"c1","name":"youtube_search","args":{"query":"Kotlin"}}]}}""");runCurrent();assertEquals(1,bridge.proposed.size);val response=org.json.JSONObject(f.connections[0].messages.last()).getJSONObject("toolResponse").getJSONArray("functionResponses").getJSONObject(0);assertEquals("c1",response.getString("id"));assertEquals("needs_approval",response.getJSONObject("response").getString("status"));assertTrue(f.session.state.value.active)}}
+ @Test fun providerCancellationIsForwardedWithoutExecutingAction(){val bridge=Bridge();scenario(bridge){f->ready(f);f.connections[0].events.message("""{"toolCallCancellation":{"ids":["c1"]}}""");runCurrent();assertEquals(listOf("c1"),bridge.cancelled);assertTrue(bridge.proposed.isEmpty())}}
+ @Test fun staleToolRequestsAreRejectedAfterStop(){val bridge=Bridge();scenario(bridge){f->ready(f);val old=f.connections[0];f.session.stopAndAwait();old.events.message("""{"toolCall":{"functionCalls":[{"id":"c1","name":"dial","args":{"recipient":"Baba"}}]}}""");runCurrent();assertTrue(bridge.proposed.isEmpty())}}
+ @Test fun nativeSetupAdvertisesOnlyConfiguredDeclarations(){val bridge=Bridge();scenario(bridge){f->ready(f);val setup=org.json.JSONObject(f.connections[0].messages.first()).getJSONObject("setup");assertTrue(setup.getJSONArray("tools").getJSONObject(0).getJSONArray("functionDeclarations").length()>0)}}
 
 }

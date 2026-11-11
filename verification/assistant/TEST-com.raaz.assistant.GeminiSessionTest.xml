@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiSessionTest" tests="30" skipped="0" failures="0" errors="0" timestamp="2026-11-11T12:41:58" hostname="9e5cad0fb6e3" time="1.613">
+  <properties/>
+  <testcase name="revokedPermissionIsDetectedWithoutMoreInput" classname="com.raaz.assistant.GeminiSessionTest" time="0.428"/>
+  <testcase name="nativeCaptureFailureReleasesPlatformAndSocket" classname="com.raaz.assistant.GeminiSessionTest" time="0.062"/>
+  <testcase name="routeSelectionUsesActivePlatformAndStopsOnFailure" classname="com.raaz.assistant.GeminiSessionTest" time="0.017"/>
+  <testcase name="malformedMessagesFailSafelyAndStopCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.022"/>
+  <testcase name="muteUnmuteRejectsFramesReadAcrossBothTransitions" classname="com.raaz.assistant.GeminiSessionTest" time="0.056"/>
+  <testcase name="largeQueuedInputStopsRatherThanPretendingToMute" classname="com.raaz.assistant.GeminiSessionTest" time="0.022"/>
+  <testcase name="focusLossCancelsNetworkAndReleasesResources" classname="com.raaz.assistant.GeminiSessionTest" time="0.018"/>
+  <testcase name="muteDuringConnectionDoesNotSendControlData" classname="com.raaz.assistant.GeminiSessionTest" time="0.054"/>
+  <testcase name="oldAudioInSameInterruptionMessageIsNotQueued" classname="com.raaz.assistant.GeminiSessionTest" time="0.019"/>
+  <testcase name="permissionDeniedDoesNotConnectOrCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.013"/>
+  <testcase name="interruptionInvalidatesPlaybackCallbacksAndKeepsSession" classname="com.raaz.assistant.GeminiSessionTest" time="0.023"/>
+  <testcase name="providerToolCallOnlyAcknowledgesPendingApproval" classname="com.raaz.assistant.GeminiSessionTest" time="0.155"/>
+  <testcase name="boundedInboxRejectsUnprocessedFlood" classname="com.raaz.assistant.GeminiSessionTest" time="0.03"/>
+  <testcase name="setupTimeoutDoesNotRetryBillableSession" classname="com.raaz.assistant.GeminiSessionTest" time="0.102"/>
+  <testcase name="genuineReadinessStartsExactlyOneAudioEngine" classname="com.raaz.assistant.GeminiSessionTest" time="0.057"/>
+  <testcase name="backgroundDuringSetupNeverStartsCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.011"/>
+  <testcase name="inputAndOutputStatesDoNotInventProcessing" classname="com.raaz.assistant.GeminiSessionTest" time="0.019"/>
+  <testcase name="providerCancellationIsForwardedWithoutExecutingAction" classname="com.raaz.assistant.GeminiSessionTest" time="0.034"/>
+  <testcase name="disconnectedSocketRequiresManualRestart" classname="com.raaz.assistant.GeminiSessionTest" time="0.061"/>
+  <testcase name="processingRequiresProviderEvidence" classname="com.raaz.assistant.GeminiSessionTest" time="0.02"/>
+  <testcase name="goAwayHonorsServerGracePeriod" classname="com.raaz.assistant.GeminiSessionTest" time="0.015"/>
+  <testcase name="repeatedStartStopReleasesEverySessionOnce" classname="com.raaz.assistant.GeminiSessionTest" time="0.075"/>
+  <testcase name="duplicateFailuresCannotDoubleClose" classname="com.raaz.assistant.GeminiSessionTest" time="0.015"/>
+  <testcase name="stopWhileAudioStartsWaitsForCleanupAndBlocksRestart" classname="com.raaz.assistant.GeminiSessionTest" time="0.091"/>
+  <testcase name="stopBeforeReadinessRejectsOldCallbacks" classname="com.raaz.assistant.GeminiSessionTest" time="0.01"/>
+  <testcase name="invalidConfigurationDoesNotAcquireAudioOrConnect" classname="com.raaz.assistant.GeminiSessionTest" time="0.042"/>
+  <testcase name="failedCleanupQuarantinesAudioOwnership" classname="com.raaz.assistant.GeminiSessionTest" time="0.019"/>
+  <testcase name="staleSessionCannotChangeNewConnection" classname="com.raaz.assistant.GeminiSessionTest" time="0.018"/>
+  <testcase name="staleToolRequestsAreRejectedAfterStop" classname="com.raaz.assistant.GeminiSessionTest" time="0.02"/>
+  <testcase name="nativeSetupAdvertisesOnlyConfiguredDeclarations" classname="com.raaz.assistant.GeminiSessionTest" time="0.066"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

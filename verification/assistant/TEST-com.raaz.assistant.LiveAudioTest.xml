@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.LiveAudioTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-11T12:42:01" hostname="9e5cad0fb6e3" time="0.038">
+  <properties/>
+  <testcase name="activityRequiresMeasuredEnergyAndSilenceReleases" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <testcase name="noListeningBeforeSessionReadiness" classname="com.raaz.assistant.LiveAudioTest" time="0.006"/>
+  <testcase name="cleanupSupportsIndependentConsecutiveSessions" classname="com.raaz.assistant.LiveAudioTest" time="0.002"/>
+  <testcase name="cleanupIsIdempotentAndContinuesAfterFailure" classname="com.raaz.assistant.LiveAudioTest" time="0.01"/>
+  <testcase name="pcmMeasuresSilenceAndSignedFullScale" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <testcase name="stopAndErrorsOverrideMeasuredActivity" classname="com.raaz.assistant.LiveAudioTest" time="0.001"/>
+  <testcase name="muteWinsButInputAndOutputRemainIndependent" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <testcase name="onlySelectedRemovedRouteIsReportedLost" classname="com.raaz.assistant.LiveAudioTest" time="0.001"/>
+  <testcase name="meterPublishesAtMostTenTimesPerSecond" classname="com.raaz.assistant.LiveAudioTest" time="0.004"/>
+  <testcase name="captionProcessorIgnoresLegacyAndUnknownEvents" classname="com.raaz.assistant.LiveAudioTest" time="0.002"/>
+  <testcase name="captionsPreserveTextAndTimingWithoutInventingTurns" classname="com.raaz.assistant.LiveAudioTest" time="0.001"/>
+  <testcase name="malformedCaptionIntervalsAreNotDisplayed" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <testcase name="transcriptClearAllowsANewSession" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <testcase name="oddTrailingBytesAreIgnored" classname="com.raaz.assistant.LiveAudioTest" time="0.001"/>
+  <testcase name="rendererRunningAloneDoesNotClaimSpeech" classname="com.raaz.assistant.LiveAudioTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
