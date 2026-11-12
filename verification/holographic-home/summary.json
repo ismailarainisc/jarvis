@@ -1,0 +1,22 @@
+{
+  "tests": 292,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": 25,
+  "build": "PASS",
+  "final_command": "./gradlew assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug",
+  "clean_build_before_final_refinement": "PASS",
+  "final_duration": "6m 23s",
+  "lint": {
+    "Error": 0,
+    "Fatal": 0,
+    "Warning": 3
+  },
+  "new_instrumentation_tests_compiled": 5,
+  "instrumentation_execution": "NOT TESTED",
+  "real_device": "NOT TESTED",
+  "live_provider": "NOT TESTED",
+  "pixel_comparison": "NOT TESTED",
+  "frozen_source_inputs_unchanged": true
+}

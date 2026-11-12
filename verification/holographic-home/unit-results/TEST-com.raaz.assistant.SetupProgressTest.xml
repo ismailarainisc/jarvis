@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.SetupProgressTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:56:20" hostname="2489d07eb512" time="0.007">
+  <properties/>
+  <testcase name="firstLaunchStartsWithWelcomeAndNoGrant" classname="com.raaz.assistant.SetupProgressTest" time="0.003"/>
+  <testcase name="revisitKeepsExistingProviderAndMode" classname="com.raaz.assistant.SetupProgressTest" time="0.001"/>
+  <testcase name="completionSurvivesRestart" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <testcase name="skippingAllOptionalStepsDoesNotGrantAnyPermission" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <testcase name="failedSaveDoesNotPretendSetupCompleted" classname="com.raaz.assistant.SetupProgressTest" time="0.001"/>
+  <testcase name="nextCannotAdvanceBeyondComplete" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <testcase name="resumesPersistedStepAfterRecreation" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <testcase name="finishingOnlyAllowedOnFinalStep" classname="com.raaz.assistant.SetupProgressTest" time="0.001"/>
+  <testcase name="corruptMetadataIsVisibleAndNonDestructive" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <testcase name="revisitingIncompleteSetupDoesNotLoseProgress" classname="com.raaz.assistant.SetupProgressTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

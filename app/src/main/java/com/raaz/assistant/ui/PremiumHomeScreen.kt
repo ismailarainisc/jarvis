@@ -1,6 +1,11 @@
 package com.raaz.assistant.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,8 +19,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.font.FontWeight
@@ -23,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import com.raaz.assistant.background.*
 import com.raaz.assistant.data.*
 import com.raaz.assistant.gemini.*
-import com.raaz.assistant.live.MeasuredWaveform
 import com.raaz.assistant.voice.*
 
 /** All voice data is supplied by the shared foreground coordinator/session or the explicit FGS. */
@@ -32,12 +34,11 @@ import com.raaz.assistant.voice.*
  background:Boolean,backgroundLive:GeminiLiveUi,wake:WakeState,
  onStart:()->Unit,onStop:()->Unit,onMute:()->Unit,onMode:(HomeVoiceMode)->Unit,
  onVoiceSettings:()->Unit,onHistory:()->Unit,onTools:()->Unit,onMemory:()->Unit,onSettings:()->Unit,
- onCamera:()->Unit,onRemovePhoto:()->Unit,onSend:(String)->Unit,onStopText:()->Unit
+ onCamera:()->Unit,onRemovePhoto:()->Unit,onSend:(String)->Unit,onStopText:()->Unit,
+ onTasks:()->Unit=onTools
 ) {
  var showModes by rememberSaveable{mutableStateOf(false)}
- var showText by rememberSaveable{mutableStateOf(false)}
  var text by rememberSaveable{mutableStateOf("")}
- LaunchedEffect(ui.imageAttached){if(ui.imageAttached)showText=true}
  val nativeMode=voice.mode==HomeVoiceMode.GEMINI_LIVE
  val audio=if(background)backgroundLive else native
  val presentation=when {
@@ -49,107 +50,104 @@ import com.raaz.assistant.voice.*
  val active=background||presentation.active
  val busy=voice.switching||voice.permissionRequest!=null||native.phase==GeminiPhase.DISCONNECTING
  val nativeAudio=background||nativeMode
- val provider=if(background&&!backgroundLive.active)"Local wake · Jarvis" else  if(nativeAudio)"Google Gemini Live" else  "Android fallback · "+(ui.providers.find{it.id==ui.selectedProvider}?.name?:"text provider not configured")
  val error=voice.error?:if(nativeAudio)audio.error?:configuration.error else ui.error
  val colors=MaterialTheme.colorScheme
- BoxWithConstraints(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(colors.background,colors.surface.copy(alpha=.55f))))) {
-  val compact=maxHeight<600.dp
+ val cyan=Color(0xFF11DDF3)
+ val dark=colors.background.luminance()<.5f
+ val ink=if(dark)Color(0xFF020C15)else colors.background
+ val foreground=if(dark)Color(0xFFE2F5FF)else colors.onBackground
+ val subtext=if(dark)Color(0xFF91B4D0)else colors.onSurfaceVariant
+ val border=if(dark)Color(0xFF468AA8)else colors.outline
+ val connected=nativeAudio&&audio.ready&&presentation.phase !in setOf(UnifiedVoicePhase.DISCONNECTING,UnifiedVoicePhase.ERROR,UnifiedVoicePhase.STOPPED)
+ val statusColor=when{error!=null->colors.error;connected->Color(0xFF20E6A0);else->cyan}
+ val status=when {
+  background&&!audio.active->"Local wake · ${wake.phase.name.lowercase().replace('_',' ')}"
+  connected->"Gemini Live · Connected"
+  nativeAudio->"Gemini Live · ${presentation.phase.name.lowercase().replace('_',' ')}"
+  else->"Android fallback · ${presentation.phase.name.lowercase().replace('_',' ')}"
+ }
+ val heading=when(presentation.phase){
+  UnifiedVoicePhase.LISTENING,UnifiedVoicePhase.USER_SPEAKING->"Listening to you"
+  UnifiedVoicePhase.ASSISTANT_SPEAKING->"Speaking to you"
+  UnifiedVoicePhase.IDLE,UnifiedVoicePhase.STOPPED->"Ready when you are"
+  UnifiedVoicePhase.PROCESSING->"Processing your request"
+  UnifiedVoicePhase.MUTED->"Microphone muted"
+  else->presentation.summary
+ }
+ val userText=if(nativeAudio)audio.interimText.ifBlank{audio.inputText}else ui.transcript
+ val assistantText=if(nativeAudio)audio.outputText else ui.streamingText.ifBlank{ui.messages.lastOrNull{it.role=="assistant"}?.text.orEmpty()}
+ BoxWithConstraints(Modifier.fillMaxSize().background(ink)) {
+  val compact=maxHeight<740.dp
   Column(Modifier.fillMaxSize()) {
-   LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("home-content"),contentPadding=PaddingValues(horizontal=20.dp,vertical=12.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+   LazyColumn(Modifier.weight(1f).fillMaxWidth().testTag("home-content"),contentPadding=PaddingValues(horizontal=20.dp,vertical=8.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
     item {
-     Surface(shape=RoundedCornerShape(20.dp),color=colors.surfaceVariant.copy(alpha=.45f),modifier=Modifier.fillMaxWidth()) {
-      Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(5.dp)) {
-       Row(verticalAlignment=Alignment.CenterVertically) {
-        Icon(if(nativeAudio)Icons.Default.GraphicEq else Icons.Default.RecordVoiceOver,null,tint=colors.primary,modifier=Modifier.size(20.dp))
-        Text(provider,style=MaterialTheme.typography.labelLarge,modifier=Modifier.weight(1f).padding(horizontal=8.dp))
-        TextButton(onClick=onVoiceSettings){Text("Voice settings")}
+     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+      IconButton(onClick=onHistory){Icon(Icons.Default.History,"Conversation history",tint=foreground)}
+      Column(Modifier.weight(1f),horizontalAlignment=Alignment.CenterHorizontally) {
+       Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+        ReactorMark(Modifier.size(30.dp),cyan)
+        Text("JARVIS",fontSize=29.sp,letterSpacing=5.sp,fontWeight=FontWeight.Medium,color=foreground)
        }
-       Row(horizontalArrangement=Arrangement.spacedBy(8.dp),verticalAlignment=Alignment.CenterVertically) {
-        AssistantConnectionBadge(presentation.phase)
-        if(nativeAudio)Text("Voice · ${configuration.voice.ifBlank{"not configured"}}",style=MaterialTheme.typography.labelMedium)
-       }
-       if(!nativeAudio)Text("SpeechRecognizer + device TTS · secondary mode",style=MaterialTheme.typography.bodySmall,color=colors.onSurfaceVariant)
+       Text("PERSONAL AI ASSISTANT",fontSize=9.sp,letterSpacing=2.sp,color=subtext,modifier=Modifier.padding(top=5.dp))
       }
+      IconButton(onClick=onSettings){Icon(Icons.Default.Settings,"Settings",tint=foreground)}
      }
+     HorizontalDivider(Modifier.padding(top=12.dp),color=border.copy(alpha=.35f))
     }
     item {
-     Column(Modifier.fillMaxWidth().padding(vertical=if(compact)0.dp else 8.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(8.dp)) {
-      Box(Modifier.size(if(compact)170.dp else 224.dp).background(Brush.radialGradient(listOf(colors.primary.copy(alpha=.10f),colors.background.copy(alpha=0f)))),contentAlignment=Alignment.Center) {
-       JarvisFace(presentation.visual,if(nativeAudio)audio.microphoneLevel else ui.microphoneLevel,if(nativeAudio)audio.outputLevel else 0f,nativeAudio&&audio.muted)
+     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+      Surface(onClick=onVoiceSettings,modifier=Modifier.weight(1f),color=statusColor.copy(alpha=.06f),border=BorderStroke(1.dp,statusColor.copy(alpha=.7f)),shape=RoundedCornerShape(24.dp)) {
+       Row(Modifier.padding(horizontal=14.dp,vertical=10.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(7.dp)) {
+        Box(Modifier.size(7.dp).background(statusColor,CircleShape))
+        Text(status,style=MaterialTheme.typography.labelLarge,color=statusColor,fontWeight=FontWeight.SemiBold)
+       }
       }
-      Text(presentation.summary,style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.SemiBold,color=if(presentation.phase==UnifiedVoicePhase.ERROR)colors.error else colors.onBackground)
-      Text(if(background)"Explicit background mode" else  if(nativeMode)"Natural voice · continuous conversation" else  "Listening resumes after device speech",style=MaterialTheme.typography.bodySmall,color=colors.onSurfaceVariant)
-      if(voice.permissionRequest!=null)Text("Waiting for your microphone permission",style=MaterialTheme.typography.bodySmall)
-      if(voice.switching)LinearProgressIndicator(Modifier.fillMaxWidth(.6f))
+      IconButton(onClick={showModes=true},enabled=!busy&&!background){Icon(Icons.Default.Tune,"Voice mode",tint=subtext)}
      }
     }
-    if(nativeAudio&&audio.active) item {
-     Surface(shape=RoundedCornerShape(18.dp),color=colors.surface.copy(alpha=.75f)) {
-      Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-       MeasuredWaveform("Microphone PCM",audio.microphoneLevel,audio.microphoneSamples,audio.capture&&audio.microphoneSamples>0,audio.muted)
-       MeasuredWaveform("Playback PCM",audio.outputLevel,audio.outputSamples,audio.playback&&audio.outputSamples>0,false)
-       if(audio.muted)Text("Capture may remain active; new microphone frames are not transmitted.",style=MaterialTheme.typography.bodySmall)
-      }
+    item {
+     Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
+      HolographicFace(presentation.phase,if(nativeAudio)audio.microphoneLevel else ui.microphoneLevel,if(nativeAudio)audio.outputLevel else 0f,audio.muted,Modifier.fillMaxWidth().height(if(compact)268.dp else 350.dp))
+      Text(heading,fontSize=if(compact)24.sp else 28.sp,fontWeight=FontWeight.Medium,textAlign=TextAlign.Center,color=foreground)
+      Text(when{voice.switching->"Preparing your voice session…";voice.permissionRequest!=null->"Waiting for microphone permission";presentation.phase==UnifiedVoicePhase.LISTENING->"Speak naturally. I’m here.";!nativeAudio->"Android recognition + device TTS";audio.muted->"Microphone audio is not transmitted";!active->"Tap Start to begin a conversation";else->"Voice · ${configuration.voice}"},style=MaterialTheme.typography.bodyMedium,textAlign=TextAlign.Center,color=subtext,modifier=Modifier.padding(top=4.dp))
+      HologramWaveform(if(nativeAudio)audio else null,ui.microphoneLevel,!nativeAudio&&ui.voiceActive&&ui.state==AssistantState.LISTENING,cyan)
      }
-    }
-    if(!nativeMode&&!background&&ui.voiceActive) item {
-     Column {Text("Android recognition RMS estimate",style=MaterialTheme.typography.labelMedium);LinearProgressIndicator(progress={ui.microphoneLevel.coerceIn(0f,1f)},modifier=Modifier.fillMaxWidth());Text("Device TTS amplitude is not available. Interruption is unavailable in fallback mode.",style=MaterialTheme.typography.bodySmall)}
     }
     if(error!=null) item {AssistantMessageCard("Needs attention",error,true)}
-    if(nativeAudio&&ui.error!=null&&ui.error!=error) item {AssistantMessageCard("Text / camera needs attention",ui.error,true)}
+    if(nativeAudio&&ui.error!=null&&ui.error!=error) item {AssistantMessageCard("Text / camera",ui.error,true)}
     if(!background&&nativeMode&&!configuration.configured) item {
-     Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=colors.primaryContainer)) {
-      Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-       Text("Connect your natural voice",style=MaterialTheme.typography.titleMedium)
-       Text("Add your Google AI Studio credential and an accessible Live model. JARVIS will not switch to device TTS automatically.",style=MaterialTheme.typography.bodyMedium)
-       Button(onClick=onVoiceSettings){Text("Set up Gemini Live")}
-      }
+     OutlinedCard(onClick=onVoiceSettings,modifier=Modifier.fillMaxWidth()) {
+      Column(Modifier.padding(14.dp)) {Text("Connect your natural voice",fontWeight=FontWeight.Bold);Text("Use your saved Google AI Studio key and an accessible Live model.",style=MaterialTheme.typography.bodySmall);TextButton(onClick=onVoiceSettings){Text("Set up Gemini Live")}}
      }
     }
-    if(nativeAudio) {
-     item {TranscriptPreview("YOU",audio.interimText.ifBlank{audio.inputText},"Your transcript appears when the provider supplies it.")}
-     item {TranscriptPreview("JARVIS",audio.outputText,"Your native Gemini reply appears here when transcription is available.")}
-    }else if(ui.transcript.isNotBlank()) item {TranscriptPreview("YOU",ui.transcript,"")}
-    if(ui.streamingText.isNotEmpty()||ui.messages.isNotEmpty()) item {
+    item {HologramTranscript("YOU",userText,"Your words appear when transcription is available.",false,cyan,border,foreground,subtext)}
+    item {HologramTranscript("JARVIS",assistantText,"Your assistant’s transcript appears here when available.",true,cyan,border,foreground,subtext)}
+    if(nativeAudio&&(ui.messages.isNotEmpty()||ui.streamingText.isNotBlank())) item {
      val last=ui.messages.lastOrNull()
-     TranscriptPreview(if(ui.streamingText.isNotEmpty())"TEXT REPLY · STREAMING" else  if(last?.role=="user")"YOU · TEXT" else  "JARVIS · TEXT",ui.streamingText.ifEmpty{last?.text.orEmpty()},"")
-     if(ui.generating)TextButton(onClick=onStopText){Text("Stop text generation")}
+     TranscriptPreview(if(ui.streamingText.isNotBlank())"TEXT REPLY · STREAMING" else if(last?.role=="user")"YOU · TEXT" else "JARVIS · TEXT",ui.streamingText.ifBlank{last?.text.orEmpty()},"")
     }
-    item {
-     Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-      Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-       HomeShortcut("Tools & background",Icons.Default.Apps,onTools,Modifier.weight(1f))
-       HomeShortcut("Memory",Icons.Default.Psychology,onMemory,Modifier.weight(1f))
-      }
-      Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
-       HomeShortcut("History",Icons.Default.History,onHistory,Modifier.weight(1f))
-       HomeShortcut("Settings",Icons.Default.Settings,onSettings,Modifier.weight(1f))
-      }
-     }
-    }
+    if(ui.generating) item {TextButton(onClick=onStopText){Text("Stop text generation")}}
    }
-   Surface(tonalElevation=4.dp,shadowElevation=6.dp,shape=RoundedCornerShape(topStart=26.dp,topEnd=26.dp)) {
-    Column(Modifier.fillMaxWidth().padding(horizontal=16.dp,vertical=12.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
-     if(showText) {
-      if(ui.imageAttached)Row(verticalAlignment=Alignment.CenterVertically){Text("Photo attached to your next text message",style=MaterialTheme.typography.labelSmall,modifier=Modifier.weight(1f));TextButton(onClick=onRemovePhoto){Text("Remove photo")}}
-      OutlinedTextField(value=text,onValueChange={text=it},label={Text("Text chat")},placeholder={Text("Message your text provider")},maxLines=3,modifier=Modifier.fillMaxWidth(),trailingIcon={IconButton(enabled=text.isNotBlank()&&!active&&!ui.generating&&!busy,onClick={onSend(text);text=""}){Icon(Icons.AutoMirrored.Filled.Send,"Send message")}})
-      if(active)Text("Stop the conversation to send a text request.",style=MaterialTheme.typography.bodySmall)
-     }
-     Row(horizontalArrangement=Arrangement.spacedBy(10.dp),verticalAlignment=Alignment.CenterVertically) {
-      PrimaryConversationButton(active,busy,{if(active)onStop()else onStart()},Modifier.weight(1f))
-      FilledTonalIconButton(onClick=onMute,enabled=nativeAudio&&audio.ready,modifier=Modifier.size(56.dp)) {
-       Icon(if(audio.muted)Icons.Default.MicOff else Icons.Default.Mic,if(audio.muted)"Unmute microphone" else  "Mute microphone")
-      }
-     }
-     Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-      BottomHomeControl(if(showText)"Hide chat" else  "Text chat",Icons.Default.ChatBubbleOutline,{showText=!showText},Modifier.weight(1f))
-      BottomHomeControl("Camera",Icons.Default.CameraAlt,onCamera,Modifier.weight(1f))
-      BottomHomeControl("Voice mode",Icons.Default.Tune,{showModes=true},Modifier.weight(1f),enabled=!busy&&!background)
-     }
+   Column(Modifier.fillMaxWidth().background(ink).padding(horizontal=20.dp,vertical=10.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+    Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+     OutlinedIconButton(onClick=onMute,enabled=nativeAudio&&audio.ready,shape=RoundedCornerShape(15.dp),border=BorderStroke(1.dp,border),modifier=Modifier.size(52.dp)) {Icon(if(audio.muted)Icons.Default.MicOff else Icons.Default.Mic,if(audio.muted)"Unmute microphone" else "Mute microphone",tint=if(nativeAudio&&audio.ready)foreground else subtext.copy(alpha=.4f))}
+     PrimaryConversationButton(active,busy,{if(active)onStop()else onStart()},Modifier.weight(1f))
+     OutlinedIconButton(onClick=onCamera,shape=RoundedCornerShape(15.dp),border=BorderStroke(1.dp,border),modifier=Modifier.size(52.dp)){Icon(Icons.Default.CameraAlt,"Camera",tint=foreground)}
+    }
+    if(ui.imageAttached)Row(verticalAlignment=Alignment.CenterVertically){Text("Photo attached",style=MaterialTheme.typography.labelSmall,modifier=Modifier.weight(1f));TextButton(onClick=onRemovePhoto){Text("Remove photo")}}
+    OutlinedTextField(value=text,onValueChange={text=it},placeholder={Text("Type a message…",color=subtext)},shape=RoundedCornerShape(15.dp),maxLines=3,modifier=Modifier.fillMaxWidth(),colors=OutlinedTextFieldDefaults.colors(unfocusedBorderColor=border,focusedBorderColor=cyan),trailingIcon={IconButton(enabled=text.isNotBlank()&&!active&&!ui.generating&&!busy,onClick={onSend(text);text=""}){Icon(Icons.AutoMirrored.Filled.Send,"Send message",tint=if(text.isNotBlank()&&!active)cyan else subtext)}})
+    if(text.isNotBlank()&&active)Text("Stop voice to send through your text provider.",style=MaterialTheme.typography.labelSmall,color=subtext)
+
+   }
+   HorizontalDivider(color=border.copy(alpha=.35f))
+   NavigationBar(containerColor=ink,tonalElevation=0.dp,windowInsets=WindowInsets(0,0,0,0)) {
+    listOf(Triple("Home",Icons.Default.Home,{}),Triple("Tasks",Icons.Default.TaskAlt,onTasks),Triple("Memory",Icons.Default.Layers,onMemory),Triple("Tools",Icons.Default.Build,onTools)).forEachIndexed {index,item->
+     NavigationBarItem(selected=index==0,onClick=item.third,icon={Icon(item.second,null)},label={Text(item.first)},colors=NavigationBarItemDefaults.colors(selectedIconColor=cyan,selectedTextColor=cyan,indicatorColor=cyan.copy(alpha=.10f),unselectedIconColor=foreground,unselectedTextColor=foreground))
     }
    }
   }
  }
+
  if(showModes)AlertDialog(onDismissRequest={showModes=false},title={Text("Choose voice mode")},text={Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
   VoiceModeChoice("Gemini Live","Natural provider audio · default",voice.mode==HomeVoiceMode.GEMINI_LIVE){onMode(HomeVoiceMode.GEMINI_LIVE);showModes=false}
   VoiceModeChoice("Android fallback","Speech recognition + device TTS · turn-based",voice.mode==HomeVoiceMode.ANDROID_FALLBACK){onMode(HomeVoiceMode.ANDROID_FALLBACK);showModes=false}
@@ -161,13 +159,8 @@ import com.raaz.assistant.voice.*
  Surface(color=color.copy(alpha=.12f),shape=RoundedCornerShape(8.dp),modifier=Modifier.semantics{contentDescription="Voice connection: ${phase.name.lowercase().replace('_',' ')}"}){Text(phase.name.replace('_',' '),modifier=Modifier.padding(horizontal=9.dp,vertical=5.dp),style=MaterialTheme.typography.labelSmall,color=color)}
 }
 @Composable fun PrimaryConversationButton(active:Boolean,busy:Boolean,onClick:()->Unit,modifier:Modifier=Modifier) {
- Button(onClick=onClick,enabled=active||!busy,shape=RoundedCornerShape(20.dp),modifier=modifier.heightIn(min=60.dp).semantics{contentDescription=if(active)"Stop conversation" else  "Start conversation";stateDescription=if(busy)"Voice operation pending" else  if(active)"Active" else  "Stopped"}) {
-  Icon(if(active)Icons.Default.Stop else Icons.Default.Mic,null);Spacer(Modifier.width(10.dp));Text(if(active)"STOP" else  if(busy)"PLEASE WAIT" else  "START",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
- }
-}
-@Composable private fun HomeShortcut(title:String,icon:ImageVector,onClick:()->Unit,modifier:Modifier=Modifier) {
- OutlinedCard(onClick=onClick,modifier=modifier.heightIn(min=72.dp),shape=RoundedCornerShape(18.dp)) {
-  Row(Modifier.padding(14.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {Icon(icon,null,tint=MaterialTheme.colorScheme.primary,modifier=Modifier.size(21.dp));Text(title,style=MaterialTheme.typography.labelLarge)}
+ Button(onClick=onClick,enabled=active||!busy,colors=ButtonDefaults.buttonColors(containerColor=Color(0xFF11DDF3),contentColor=Color(0xFF02131C)),contentPadding=PaddingValues(horizontal=10.dp),shape=RoundedCornerShape(20.dp),modifier=modifier.heightIn(min=60.dp).semantics{contentDescription=if(active)"Stop conversation" else  "Start conversation";stateDescription=if(busy)"Voice operation pending" else  if(active)"Active" else  "Stopped"}) {
+  Icon(if(active)Icons.Default.Stop else Icons.Default.Mic,null);Spacer(Modifier.width(10.dp));Text(if(active)"Stop conversation" else if(busy)"Please wait" else "Start conversation",style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold)
  }
 }
 @Composable private fun TranscriptPreview(title:String,text:String,empty:String) {
@@ -187,8 +180,4 @@ import com.raaz.assistant.voice.*
 }
 @Composable private fun VoiceModeChoice(title:String,detail:String,selected:Boolean,onClick:()->Unit) {
  OutlinedCard(onClick=onClick,modifier=Modifier.fillMaxWidth()) {Row(Modifier.padding(12.dp),verticalAlignment=Alignment.CenterVertically){RadioButton(selected,onClick=null);Column(Modifier.padding(start=10.dp)){Text(title,fontWeight=FontWeight.SemiBold);Text(detail,style=MaterialTheme.typography.bodySmall)}}}
-}
-
-@Composable private fun BottomHomeControl(label:String,icon:ImageVector,onClick:()->Unit,modifier:Modifier=Modifier,enabled:Boolean=true) {
- TextButton(onClick=onClick,enabled=enabled,modifier=modifier.heightIn(min=48.dp)) {Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(4.dp)){Icon(icon,null,Modifier.size(18.dp));Text(label,style=MaterialTheme.typography.labelMedium,textAlign=TextAlign.Center,maxLines=2)}}
 }

@@ -1,16 +1,15 @@
-# JARVIS 7.1 — development and instrumentation artifacts
+# JARVIS 7.2 — holographic Home
 
 - [Android app APK](Jarvis-Gemini-Live.apk?raw=true)
-- [Android instrumentation APK](Jarvis-7.1-androidTest.apk?raw=true)
-- [Complete Android Studio source ZIP](Jarvis-Gemini-Live-Source.zip?raw=true)
+- [Instrumentation APK](Jarvis-7.2-androidTest.apk?raw=true)
+- [Complete source ZIP](Jarvis-Gemini-Live-Source.zip?raw=true)
 - [SHA-256 checksums](SHA256SUMS)
-- [Current fixes and evidence](../RELIABILITY-71-REPORT.md)
-- [Updated setup, exact ADB commands and device checklist](../RELIABILITY-71-GUIDE.md)
-- [Source/PR audit](../RELIABILITY-71-AUDIT.md)
-- [Actual build/test/lint logs](../verification/reliability-71/)
+- [Current Home implementation and verification](../HOME-DESIGN-REPORT.md)
+- [Approved design reference](../design/approved-home-reference.png)
+- [Build/test/lint evidence](../verification/holographic-home/)
 
-App versionCode 11 / 7.1-reliability / com.raaz.assistant. App and test APK share the previous workspace development certificate; private key excluded. Instrumentation package com.raaz.assistant.test targets the app through androidx.test.runner.AndroidJUnitRunner. Compilation is not instrumentation execution.
+Package com.raaz.assistant; versionCode 12 / 7.2-holographic-home. The current Home uses functional Compose controls, a separate decorative holographic face asset and actual existing session state. The approved reference is a concept image, not proof of actual rendering. No fake conversations/connection success are inserted. Native Gemini and explicit fallback retain their shared coordinator and stored settings.
 
-PR #2 (7.0) was still open at inspection. This 7.1 update is a separate stacked pull request against its branch; main is not overwritten. Links resolve to the branch/commit being viewed. Current exact counts/results are in verification/reliability-71/summary.json.
+App and instrumentation APK use the previous development certificate; the private key is excluded. Only compilation/signature/automated JVM checks were possible. No attached Android device/emulator or legitimate Gemini credentials were available: visual pixel matching, instrumentation execution, real microphone/playback and live Gemini remain NOT TESTED.
 
-No phone/emulator, KVM device, legitimate Gemini/Picovoice credential or external account was available. No real calls/messages were sent. No complete production readiness or universal phone-control claim. The source archive contains the project, wrapper, tests, backend and evidence; Gradle resolves dependencies. It excludes private configuration/keys, caches and recursive APK/ZIP downloads.
+This branch is stacked on PR #3 (7.1), itself based on PR #2 (7.0); main is unchanged. Relative downloads correspond to the branch/commit you are viewing. Full source includes wrapper/resources/tests/backend and evidence, excluding credentials, local settings, caches and recursive APK/ZIP downloads. Older 7.1 instrumentation remains a historical artifact; install the current 7.2 pair for these tests.

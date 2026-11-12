@@ -49,7 +49,7 @@ private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SET
  LaunchedEffect(setupRequest){if(setupRequest>0)go(Screen.LIVE)}
  DisposableEffect(Unit){onDispose{onVoiceSurface(false)}}
  val colors=if(ui.settings.dark) darkColorScheme(primary=Cyan,secondary=Violet,background=Navy,surface=SurfaceBlue) else lightColorScheme(primary=Color(0xFF006878),secondary=Color(0xFF644DA1))
- MaterialTheme(colorScheme=colors){Scaffold(topBar={JarvisTopBar(if(page==Screen.LIVE)"Voice settings" else  page.name.replace('_',' '),page!=Screen.HOME,{back()},{go(Screen.SETTINGS)},{go(Screen.HISTORY)})}){pad-> Column(Modifier.fillMaxSize().padding(pad).imePadding().navigationBarsPadding()){
+ MaterialTheme(colorScheme=colors){Scaffold(topBar={if(page!=Screen.HOME)JarvisTopBar(if(page==Screen.LIVE)"Voice settings" else  page.name.replace('_',' '),page!=Screen.HOME,{back()},{go(Screen.SETTINGS)},{go(Screen.HISTORY)})}){pad-> Column(Modifier.fillMaxSize().padding(pad).imePadding().navigationBarsPadding()){
  if(featureNotice!=null||pendingTasks>0)Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically){Text(featureNotice?:"$pendingTasks task(s) need approval",maxLines=2,modifier=Modifier.weight(1f),style=MaterialTheme.typography.bodySmall);TextButton(onClick={go(Screen.TASKS)}){Text("Review")}}
  when(page){
  Screen.SETUP -> setupContent({setupReturn=false;go(Screen.HOME)},{setupReturn=true;go(Screen.PROVIDERS)},{setupReturn=true;go(Screen.BACKGROUND)},{setupReturn=true;go(Screen.LIVE)})
@@ -59,7 +59,7 @@ private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SET
  Screen.HOME -> PremiumHomeScreen(ui,native,configuration,voice,backgroundRunning,backgroundLive,wake,
   onStart=onListen,onStop=onStop,onMute=onMute,onMode=onMode,onVoiceSettings={go(Screen.LIVE)},
   onHistory={go(Screen.HISTORY)},onTools={go(Screen.HUB)},onMemory={go(Screen.MEMORY)},onSettings={go(Screen.SETTINGS)},
-  onCamera=onCamera,onRemovePhoto=vm::removePhoto,onSend=onSend,onStopText=onStopText)
+  onCamera=onCamera,onRemovePhoto=vm::removePhoto,onSend=onSend,onStopText=onStopText,onTasks={go(Screen.TASKS)})
  Screen.PROVIDERS -> Providers(ui,vm::saveProfile,vm::selectProfile,vm::removeProfile,vm::deleteKey,vm::testProvider)
  Screen.HISTORY -> History(ui.messages,vm::clearHistory)
  Screen.SETTINGS -> SettingsScreen(ui.settings,{vm.saveSettings(it,null)},{go(Screen.PROVIDERS)},{go(Screen.ABOUT)},{go(Screen.LIVE)},{setup.revisit();go(Screen.SETUP)})

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.WakeSessionTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:56:20" hostname="2489d07eb512" time="0.04">
+  <properties/>
+  <testcase name="failedCaptureCleanupQuarantinesFutureStarts" classname="com.raaz.assistant.WakeSessionTest" time="0.011"/>
+  <testcase name="wakeClosesCaptureBeforeStartingGemini" classname="com.raaz.assistant.WakeSessionTest" time="0.003"/>
+  <testcase name="revokedPermissionBlocksHandoff" classname="com.raaz.assistant.WakeSessionTest" time="0.003"/>
+  <testcase name="duplicateDetectionsCannotStartTwoSessions" classname="com.raaz.assistant.WakeSessionTest" time="0.002"/>
+  <testcase name="staleWakeAndFailureCannotAffectRearmedSession" classname="com.raaz.assistant.WakeSessionTest" time="0.004"/>
+  <testcase name="permissionDeniedNeverCreatesRecorder" classname="com.raaz.assistant.WakeSessionTest" time="0.002"/>
+  <testcase name="suspendedWakeInitializationHasDeadlineAndCannotStartVoice" classname="com.raaz.assistant.WakeSessionTest" time="0.004"/>
+  <testcase name="explicitArmIsRequiredAndDoesNotStartGemini" classname="com.raaz.assistant.WakeSessionTest" time="0.002"/>
+  <testcase name="pauseAndStopRejectPendingDetections" classname="com.raaz.assistant.WakeSessionTest" time="0.002"/>
+  <testcase name="repeatedArmPauseDoesNotLeakCaptures" classname="com.raaz.assistant.WakeSessionTest" time="0.004"/>
+  <testcase name="actualCaptureFailurePausesWithoutAutomaticRetry" classname="com.raaz.assistant.WakeSessionTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
