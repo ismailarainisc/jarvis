@@ -80,3 +80,6 @@ class HomeVoiceCoordinator(
  fun configurationUpdated(){mutable.value=state.value.copy(needsSetup=false,error=null)}
  fun close(){if(closed)return;stop();closed=true}
 }
+
+/** Foreground approval/control work shares the native owner; setup/providers do not record. */
+fun foregroundVoiceWorkspace(screen:String)=screen in setOf("HOME","LIVE","TASKS","HUB")

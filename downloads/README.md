@@ -1,14 +1,15 @@
-# JARVIS 6.1 — native Home development downloads
+# JARVIS 7.0 — Android action engine development downloads
 
-- [Android APK](Jarvis-Gemini-Live.apk?raw=true)
+- [Android development APK](Jarvis-Gemini-Live.apk?raw=true)
 - [Complete Android Studio source ZIP](Jarvis-Gemini-Live-Source.zip?raw=true)
 - [SHA-256 checksums](SHA256SUMS)
-- [Current native Home implementation/evidence and limitations](../HOME-VOICE-REPORT.md)
-- [Setup and actual-device checklist](../HOME-VOICE-GUIDE.md)
-- [Preserved assistant capabilities and previous phase evidence](../ASSISTANT-VERIFICATION.md)
+- [Current implementation, changed files and evidence](../ACTION-ENGINE-REPORT.md)
+- [Setup, capabilities and physical-device checklist](../ACTION-ENGINE-GUIDE.md)
+- [Audit and official protocol/platform references](../ACTION-ENGINE-AUDIT.md)
+- [Actual build/test/lint reports](../verification/actions-7/)
 
-VersionCode9 / 6.1-native-home / com.raaz.assistant. Development APK signed with the previous workspace certificate; private signing key excluded. Exact final test/lint results are in ../verification/home-voice/summary.json and ../HOME-VOICE-REPORT.md.
+VersionCode 10 / 7.0-actions / com.raaz.assistant. Matching previous workspace development signing certificate; private signing key excluded. Actual final clean-build, JVM and lint counts are recorded in verification/actions-7/summary.json.
 
-Home START defaults to the existing native Gemini Live engine; advanced voice settings shares the same foreground session. Android SpeechRecognizer/TTS is a separately selected fallback. No actual Gemini connection or Android-device audio verification occurred: no credential, emulator or phone was available. No production-readiness claim.
+This build adds real first-run setup, explicit permissions, typed Android actions, durable approvals, native Gemini tool outcomes and Control Center. Native Google voice, Home/session, existing profiles/encrypted keys, local history/memory, SSE, camera, MCP and opt-in wake remain intact. No universal phone control or production-readiness claim. Android instrumentation, physical audio/actions and genuine Gemini/external account tests are NOT TESTED in this workspace.
 
-These relative links download the files from the branch/commit being viewed. This update is submitted on feat/unified-gemini-home for PR review; main retains its previous release until merged. Source excludes generated builds, credentials, private signing keys and recursive APK/ZIP download files.
+Links resolve to the branch/commit being viewed. The 7.0 update is submitted on feat/mobile-action-engine-7 for PR review; main remains on its previous version until merged. The complete source archive excludes build caches, private configuration/keys and recursive download artifacts; it includes Gradle wrapper, source/resources, tests, retained backend and evidence. Gradle resolves third-party dependencies during import/build.

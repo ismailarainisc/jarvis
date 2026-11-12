@@ -5,5 +5,5 @@ import org.junit.Rule
 import org.junit.Test
 class NavigationTest {
  @get:Rule val rule=createAndroidComposeRule<MainActivity>()
- @Test fun settingsAndBack(){rule.onNodeWithContentDescription("Settings").performClick();rule.onNodeWithText("Preferences").assertIsDisplayed();rule.onNodeWithContentDescription("Back").performClick();rule.onNodeWithText("PERSONAL AI COMPANION").assertExists()}
+ @Test fun settingsAndBack(){finishSetupForTest(rule);rule.onNodeWithContentDescription("Settings").performClick();rule.onNodeWithText("Preferences").assertIsDisplayed();rule.onNodeWithContentDescription("Back").performClick();rule.onNodeWithText("PERSONAL AI COMPANION").assertExists()}
 }

@@ -50,6 +50,7 @@ object DocumentedGeminiVoices {val examples=listOf("Kore","Puck","Charon","Fenri
    }
   }
   OutlinedTextField(voice,{voice=it},enabled=editable,label={Text("Native Gemini voice name")},supportingText={Text("You may keep a supported custom name. Availability depends on model/account; your saved preference is never silently replaced.")},modifier=Modifier.fillMaxWidth())
+  Text(if(geminiAsyncTools(config.model))"Documented async tool mode: NON_BLOCKING requests and WHEN_IDLE results. Pending approvals can coexist with the same voice session; actual provider/device behavior still requires testing." else "This model is not on JARVIS’s documented async-tool allowlist. The provider may pause conversation while awaiting approval/results; no uninterrupted-tool claim is made.",style=MaterialTheme.typography.bodySmall)
   Text("Urdu, Hindi and English conversation follow your selected model's actual capabilities. No device-TTS substitution is performed for a native session.",style=MaterialTheme.typography.bodySmall)
   OutlinedTextField(key,{key=it},enabled=editable,label={Text(if(config.configured)"Replace Google credential (blank keeps saved)" else  "Google AI Studio credential")},visualTransformation=PasswordVisualTransformation(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),modifier=Modifier.fillMaxWidth())
   Button(enabled=editable,onClick={if(controller.save(model,voice,key)){key="";onSaved()}},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Save native voice configuration")}
@@ -69,7 +70,7 @@ object DocumentedGeminiVoices {val examples=listOf("Kore","Puck","Charon","Fenri
   }
   Button(enabled=ui.active||(!voiceState.switching&&voiceState.permissionRequest==null&&!backgroundRunning),onClick={if(ui.active)onStop()else onStart()},modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(if(ui.active)"STOP shared conversation" else  "START native Gemini")}
   OutlinedButton(enabled=ui.ready,onClick=onMute,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text(if(ui.muted)"Unmute microphone" else  "Mute microphone")}
-  Text("Home ↔ Voice settings preserves this shared session. Other screens and app backgrounding stop foreground audio. The opt-in background wake service remains a separate, mutually exclusive mode.",style=MaterialTheme.typography.bodySmall)
+  Text("Home ↔ Voice settings preserves this shared session. Tasks and Control Center also preserve the foreground session for approvals. Other screens and app backgrounding stop audio. The opt-in background wake service remains a separate, mutually exclusive mode.",style=MaterialTheme.typography.bodySmall)
   Text("Microphone audio is sent to Google only after explicit START and actual setupComplete. Your credential remains encrypted on this device. Quota, pricing, model access and voice availability depend on Google. Shared-account distributed apps should use trusted short-lived credentials rather than embed developer keys.",style=MaterialTheme.typography.bodySmall)
  }
 }

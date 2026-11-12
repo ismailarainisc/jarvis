@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.MobileActionEngineTest" tests="34" skipped="0" failures="0" errors="0" timestamp="2026-11-12T12:36:40" hostname="2489d07eb512" time="0.725">
+  <properties/>
+  <testcase name="nativeDeclarationsUseTheDocumentedRawJsonSchemaField" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="launchedIsNeverReportedAsVerified" classname="com.raaz.assistant.MobileActionEngineTest" time="0.002"/>
+  <testcase name="modelCannotOverrideMemoryDeletionSnapshot" classname="com.raaz.assistant.MobileActionEngineTest" time="0.009"/>
+  <testcase name="extendedSettingsPagesAreBounded" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="documentedNonBlockingSetupDoesNotMutateOriginalDeclarations" classname="com.raaz.assistant.MobileActionEngineTest" time="0.008"/>
+  <testcase name="unsupportedProposalIsRecordedWithoutPreparation" classname="com.raaz.assistant.MobileActionEngineTest" time="0.004"/>
+  <testcase name="mapsQueryCannotInjectAnotherParameterOrFragment" classname="com.raaz.assistant.MobileActionEngineTest" time="0.04"/>
+  <testcase name="nativeApprovalExpirySurvivesLossOfInMemorySessionTimer" classname="com.raaz.assistant.MobileActionEngineTest" time="0.019"/>
+  <testcase name="duplicateFunctionRequestUsesOneDurableRecord" classname="com.raaz.assistant.MobileActionEngineTest" time="0.531"/>
+  <testcase name="appSearchIsLocalBoundedAndNotAnAppLaunch" classname="com.raaz.assistant.MobileActionEngineTest" time="0.002"/>
+  <testcase name="controlsAndApprovalsPreserveVoiceButSetupDoesNot" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="providerOutcomeDoesNotLeakPrivateLocalResults" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="providerCancellationCancelsOnlyPendingApproval" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="mapsSearchPreservesDocumentedOpaqueCoordinatesAndUnicode" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="approvedNonSensitiveDeviceSnapshotCanBeSpoken" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="invalidArgumentsCannotReachTools" classname="com.raaz.assistant.MobileActionEngineTest" time="0.001"/>
+  <testcase name="contactAmbiguityDoesNotDisappearOrExecute" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="geminiProposalWaitsForDeviceApprovalAndReturnsRealOutcome" classname="com.raaz.assistant.MobileActionEngineTest" time="0.006"/>
+  <testcase name="asynchronousToolCapabilityDoesNotAssumeEveryModel" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="revokingAssistantToolsCancelsUnapprovedProviderRequest" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="newSupportedActionsHaveRealTypedValidation" classname="com.raaz.assistant.MobileActionEngineTest" time="0.001"/>
+  <testcase name="scopedAutomationRejectsPermissionAndLockOverlays" classname="com.raaz.assistant.MobileActionEngineTest" time="0.001"/>
+  <testcase name="revokingToolConsentBeforeApprovalPreventsExecution" classname="com.raaz.assistant.MobileActionEngineTest" time="0.025"/>
+  <testcase name="deviceStatusCannotSmugglePrivateOrMalformedDetailsToProvider" classname="com.raaz.assistant.MobileActionEngineTest" time="0.002"/>
+  <testcase name="expiredApprovalCannotExecuteLater" classname="com.raaz.assistant.MobileActionEngineTest" time="0.009"/>
+  <testcase name="approvalAwaiterReturnsOnlyAfterActualLedgerOutcome" classname="com.raaz.assistant.MobileActionEngineTest" time="0.002"/>
+  <testcase name="explicitManualTaskIsNotSilentlyExpiredByVoicePolicy" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="providerCannotSupplyDeviceResolvedFields" classname="com.raaz.assistant.MobileActionEngineTest" time="0.0"/>
+  <testcase name="revokedPermissionGatePreventsExecutionAndPersists" classname="com.raaz.assistant.MobileActionEngineTest" time="0.01"/>
+  <testcase name="browserUrlCannotContainControlsOrUnexpectedPorts" classname="com.raaz.assistant.MobileActionEngineTest" time="0.001"/>
+  <testcase name="disabledAssistantToolsNeverCreateProposal" classname="com.raaz.assistant.MobileActionEngineTest" time="0.004"/>
+  <testcase name="staleSessionEndCannotCancelAnotherSession" classname="com.raaz.assistant.MobileActionEngineTest" time="0.005"/>
+  <testcase name="missingPermissionProducesDurableRecord" classname="com.raaz.assistant.MobileActionEngineTest" time="0.003"/>
+  <testcase name="integerOverflowAndPreciselyFractionalDurationsAreRejected" classname="com.raaz.assistant.MobileActionEngineTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.VoiceTurnGateTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-12T12:36:41" hostname="2489d07eb512" time="0.004">
+  <properties/>
+  <testcase name="stopInvalidatesOldCallbacks" classname="com.raaz.assistant.VoiceTurnGateTest" time="0.001"/>
+  <testcase name="successiveTurnsRejectPreviousCallbacks" classname="com.raaz.assistant.VoiceTurnGateTest" time="0.0"/>
+  <testcase name="duplicateResultsAreIgnored" classname="com.raaz.assistant.VoiceTurnGateTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

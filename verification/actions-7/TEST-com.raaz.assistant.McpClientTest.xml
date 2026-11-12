@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.McpClientTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-12T12:36:39" hostname="2489d07eb512" time="1.078">
+  <properties/>
+  <testcase name="sseResponsesAreParsedByEventBoundaries" classname="com.raaz.assistant.McpClientTest" time="0.109"/>
+  <testcase name="revocationDuringDiscoveryPreventsActualToolCall" classname="com.raaz.assistant.McpClientTest" time="0.128"/>
+  <testcase name="mismatchedResponseIdFails" classname="com.raaz.assistant.McpClientTest" time="0.057"/>
+  <testcase name="unsafeEndpointIsRejectedBeforeSending" classname="com.raaz.assistant.McpClientTest" time="0.01"/>
+  <testcase name="disabledServerCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.02"/>
+  <testcase name="declaredToolErrorsAreNotSuccessfulResults" classname="com.raaz.assistant.McpClientTest" time="0.155"/>
+  <testcase name="approvedAllowedToolActuallyCallsServerOnce" classname="com.raaz.assistant.McpClientTest" time="0.145"/>
+  <testcase name="unapprovedToolCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.048"/>
+  <testcase name="unsupportedArgumentsNeverReachToolCall" classname="com.raaz.assistant.McpClientTest" time="0.106"/>
+  <testcase name="cancelledRequestReleasesNonrespondingSocket" classname="com.raaz.assistant.McpClientTest" time="0.125"/>
+  <testcase name="realInitializeNotificationDiscoveryAndDelete" classname="com.raaz.assistant.McpClientTest" time="0.087"/>
+  <testcase name="schemaValidationIsConservative" classname="com.raaz.assistant.McpClientTest" time="0.0"/>
+  <testcase name="authenticationFailureNeverExposesResponseBody" classname="com.raaz.assistant.McpClientTest" time="0.019"/>
+  <testcase name="redirectsDoNotForwardCredentials" classname="com.raaz.assistant.McpClientTest" time="0.066"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Nov 12, 2026 12:36:40 PM okhttp3.mockwebserver.MockWebServer$SocketHandler handle
+WARNING: MockWebServer[54535] connection from /127.0.0.1 didn't make a request
+]]></system-err>
+</testsuite>

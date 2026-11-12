@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-12",
+  "baseline": "e4a33167c2c899dbdb01151c7e8871fc0bcf0813",
+  "branch": "feat/mobile-action-engine-7",
+  "package": "com.raaz.assistant",
+  "versionCode": 10,
+  "versionName": "7.0-actions",
+  "command": "./gradlew clean assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug --no-daemon --max-workers=2",
+  "result": "PASS",
+  "elapsed": "5m 49s",
+  "jvm": {
+    "tests": 254,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": 24,
+  "lint": {
+    "Error": 0,
+    "Warning": 3,
+    "Information": 0,
+    "Fatal": 0
+  },
+  "retainedBackendFixtures": {
+    "pass": 9,
+    "fail": 0,
+    "liveProvider": false
+  },
+  "instrumentation": "APK compiled; execution NOT TESTED",
+  "device": "NOT TESTED \u2014 adb has no connected device; emulator binary unavailable",
+  "GeminiLive": "NOT TESTED \u2014 no legitimate credential/account supplied",
+  "externalAndroidActions": "NOT TESTED \u2014 no device or authorized live action test data; no real calls/messages sent",
+  "externalMcpPicovoice": "NOT TESTED \u2014 no legitimate external account/server supplied",
+  "apkChecks": {
+    "signature": "PASS",
+    "previous_certificate_match": "PASS",
+    "zipalign_16kb": "PASS",
+    "all_non_signature_entries_match_gradle_apk": 187,
+    "package": "com.raaz.assistant",
+    "versionCode": 10,
+    "versionName": "7.0-actions"
+  },
+  "verificationLimits": "JVM tests isolate real production policy/session/ledger request logic using fake platform/store/transport ports. These are not hardware/provider compatibility results."
+}

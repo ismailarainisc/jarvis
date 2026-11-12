@@ -13,14 +13,14 @@ interface GeminiToolBridge {
  fun declarations():JSONArray
  suspend fun propose(session:String,call:GeminiFunctionCall):JSONObject
  suspend fun cancel(session:String,ids:List<String>)
- fun finished(session:String){}
+ suspend fun finished(session:String){}
  fun close(){}
  fun preferences():String=""
 }
 class AndroidGeminiToolBridge(context:Context):GeminiToolBridge {
  private val store=FeatureStore(context.applicationContext)
  private val resolver=ToolResolver(context.applicationContext,store)
- private val pending=mutableMapOf<String,String>()
+ private val requests=ApprovedToolRequests(store,resolver::prepare,{store.flag("assistant_tools")})
  override fun declarations():JSONArray {
   if(!store.flag("assistant_tools"))return JSONArray()
   val all=ToolRegistry.declarations();val choices=JSONArray();readServers(store).filter{it.enabled&&it.allowed.isNotEmpty()}.forEach{choices.put(JSONObject().put("server",it.id).put("tools",JSONArray(it.allowed.toList())))}
@@ -28,21 +28,10 @@ class AndroidGeminiToolBridge(context:Context):GeminiToolBridge {
   return all
  }
  override fun preferences()=store.relevantContext("")
- override suspend fun propose(session:String,call:GeminiFunctionCall):JSONObject=withContext(Dispatchers.IO){
-  if(!store.flag("assistant_tools"))return@withContext JSONObject().put("status","unsupported").put("message","Enable assistant tools on the device first.")
-  val key="$session/${call.id}"
-  synchronized(pending){pending[key]}?.let{return@withContext JSONObject().put("status","needs_approval").put("requestId",it)}
-  if(synchronized(pending){pending.size}>=100)return@withContext JSONObject().put("status","failed").put("message","Tool proposal limit reached.")
-  val proposed=ToolAction(call.name,call.args);val invalid=ToolRegistry.validate(proposed)
-  if(invalid!=null)return@withContext JSONObject().put("status","unsupported").put("message",invalid)
-  val resolved=try{resolver.prepare(proposed)}catch(e:Exception){return@withContext JSONObject().put("status","needs_configuration").put("message","Resolve the app or contact in Tools/Contacts first. No action executed.")}
-  val task=AgentTask(action=resolved,source="Gemini proposal",detail="AI-proposed arguments are untrusted. Unlock and review in Tasks before executing.")
-  store.insertTask(task);synchronized(pending){pending[key]=task.id}
-  JSONObject().put("status","needs_approval").put("requestId",task.id).put("message","Proposal saved on device. It has NOT executed. Ask the user to review Tasks; do not claim success.")
- }
- override suspend fun cancel(session:String,ids:List<String>)=withContext(Dispatchers.IO){ids.forEach{id->val task=synchronized(pending){pending.remove("$session/$id")};if(task!=null)store.transition(task,TaskStatus.NEEDS_APPROVAL,TaskStatus.CANCELLED,"Provider cancelled this pending proposal; nothing executed.")};Unit}
+ override suspend fun propose(session:String,call:GeminiFunctionCall):JSONObject=withContext(Dispatchers.IO){requests.propose(session,call)}
+ override suspend fun cancel(session:String,ids:List<String>)=withContext(Dispatchers.IO){requests.cancel(session,ids)}
  override fun close(){store.close()}
- override fun finished(session:String){synchronized(pending){pending.keys.removeAll{it.startsWith("$session/")}}}
+ override suspend fun finished(session:String)=withContext(Dispatchers.IO){requests.finished(session)}
 }
 fun decodeFunctionCalls(root:JSONObject):List<GeminiFunctionCall>{
  val tool=root.optJSONObject("toolCall")?:return emptyList();val calls=tool.optJSONArray("functionCalls")?:throw GeminiFailure(GeminiErrorCode.PROTOCOL,"Gemini tool call is malformed.");if(calls.length()>8)throw GeminiFailure(GeminiErrorCode.BACKPRESSURE,"Too many tool proposals in one event.")
