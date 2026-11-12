@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.Reliability71Test" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:56:20" hostname="2489d07eb512" time="0.064">
+  <properties/>
+  <testcase name="notificationActionsCannotStartUnreservedService" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="genuinelyDifferentContactsSharingNumberRemainAmbiguous" classname="com.raaz.assistant.Reliability71Test" time="0.002"/>
+  <testcase name="approvalAndWaitUseSingleRecordLookup" classname="com.raaz.assistant.Reliability71Test" time="0.026"/>
+  <testcase name="preparationTimeoutPersistsFailureWithoutExecution" classname="com.raaz.assistant.Reliability71Test" time="0.007"/>
+  <testcase name="closedSpeechCannotPlayOrQueue" classname="com.raaz.assistant.Reliability71Test" time="0.003"/>
+  <testcase name="executionDeadlineRecordsUnknownAndCannotReplay" classname="com.raaz.assistant.Reliability71Test" time="0.007"/>
+  <testcase name="phoneFormattingDoesNotChangeContactIdentity" classname="com.raaz.assistant.Reliability71Test" time="0.001"/>
+  <testcase name="corruptSelectedRecipientCanBeExplicitlyCleared" classname="com.raaz.assistant.Reliability71Test" time="0.002"/>
+  <testcase name="permissionRejectedServiceStartRevokesReservation" classname="com.raaz.assistant.Reliability71Test" time="0.001"/>
+  <testcase name="unknownAppNamesRemainAmbiguous" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="revocationInvalidatesOutstandingContactResult" classname="com.raaz.assistant.Reliability71Test" time="0.001"/>
+  <testcase name="backgroundFailureSurvivesNormalCleanupStates" classname="com.raaz.assistant.Reliability71Test" time="0.002"/>
+  <testcase name="selectedRecipientCanBeRevoked" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="coldSpeechWaitsForActualInitialization" classname="com.raaz.assistant.Reliability71Test" time="0.001"/>
+  <testcase name="malformedSelectionDoesNotBecomeARecipient" classname="com.raaz.assistant.Reliability71Test" time="0.006"/>
+  <testcase name="selectedRecipientSurvivesRestartWithoutChangingCredentials" classname="com.raaz.assistant.Reliability71Test" time="0.002"/>
+  <testcase name="stoppedColdSpeechCannotPlayAfterLateInit" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="latestContactRequestRejectsOutOfOrderCompletion" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="blockedNotificationChannelPreventsHiddenRecording" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="failedSpeechInitNeverPretendsToPlay" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="speechQueueIsBoundedAndLatestReplyWins" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="explicitStartAndRunningControlsRespectCurrentPermissions" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="serviceCannotRearmDuringCleanup" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="formattingDuplicatesOfOneContactResolveOnce" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="selectedReferenceMustBeExactNotArbitraryText" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="commonSpokenAppAliasResolvesLocalizedOfficialApp" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <testcase name="speechTimeoutRejectsLateInitialization" classname="com.raaz.assistant.Reliability71Test" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

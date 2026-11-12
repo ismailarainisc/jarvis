@@ -1,4 +1,8 @@
-# JARVIS 7.1 — action and voice reliability
+# JARVIS 7.2 — Holographic Home
+
+[Current Home design, implementation and verification](HOME-DESIGN-REPORT.md). The approved reference and actual reusable face artwork are included. Device/pixel-fidelity and live Google verification remain NOT TESTED.
+
+## Previous phase — JARVIS 7.1 — action and voice reliability
 
 Existing Android app, package **com.raaz.assistant**. Native voice uses **Gemini Live**; the optional wake engine uses **Porcupine** with a separately supplied user AccessKey. No Google/Picovoice/OpenAI credential is embedded.
 

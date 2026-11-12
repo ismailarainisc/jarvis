@@ -1,0 +1,22 @@
+[
+  {
+    "kind": "app",
+    "package": "com.raaz.assistant",
+    "signature": "PASS",
+    "same_previous_certificate": true,
+    "zipalign_16kb": "PASS",
+    "non_signature_entries_match_gradle": 188,
+    "download": "Jarvis-Gemini-Live.apk",
+    "bytes": 67494200
+  },
+  {
+    "kind": "androidTest",
+    "package": "com.raaz.assistant.test",
+    "signature": "PASS",
+    "same_previous_certificate": true,
+    "zipalign_16kb": "PASS",
+    "non_signature_entries_match_gradle": 117,
+    "download": "Jarvis-7.2-androidTest.apk",
+    "bytes": 1005869
+  }
+]

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiProtocolTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:56:17" hostname="2489d07eb512" time="0.015">
+  <properties/>
+  <testcase name="thoughtContentIsNeverExposedOrPlayed" classname="com.raaz.assistant.GeminiProtocolTest" time="0.001"/>
+  <testcase name="multipartAudioAndCaptionsAreAllHandled" classname="com.raaz.assistant.GeminiProtocolTest" time="0.003"/>
+  <testcase name="modelPrefixIsNotDuplicated" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="ephemeralTokenUsesDocumentedConstrainedMethod" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="unsupportedOutputRateFails" classname="com.raaz.assistant.GeminiProtocolTest" time="0.001"/>
+  <testcase name="backgroundProcessingIsNotFalselyIdle" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="interruptionAndGoAwayAreProviderSignals" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="malformedModelIsRejected" classname="com.raaz.assistant.GeminiProtocolTest" time="0.001"/>
+  <testcase name="setupUsesGeminiNativeAudioAndVad" classname="com.raaz.assistant.GeminiProtocolTest" time="0.004"/>
+  <testcase name="serverReadinessIsActualSetupComplete" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="microphoneFrameHasCorrectRate" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <testcase name="directApiKeyIsHeaderOnly" classname="com.raaz.assistant.GeminiProtocolTest" time="0.001"/>
+  <testcase name="mutedInputFlushUsesAudioStreamEnd" classname="com.raaz.assistant.GeminiProtocolTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
