@@ -76,9 +76,9 @@ object ToolRegistry {
    Triple("scroll_app","Propose one scroll in explicitly enabled com.google.android.youtube or com.android.chrome. direction is forward or backward. Device approval and optional accessibility are required.",mapOf("package" to "string","direction" to "string")),
    Triple("back_app","Propose one Back action in explicitly enabled com.google.android.youtube or com.android.chrome. Device approval is required.",mapOf("package" to "string")),
    Triple("open_url","Propose opening an HTTPS link.",mapOf("url" to "string")),
-   Triple("dial","Propose dialer composition for a contact alias or phone. No call is placed until the user acts.",mapOf("recipient" to "string")),
-   Triple("sms_compose","Propose an SMS composer. Does not send automatically.",mapOf("recipient" to "string","message" to "string")),
-   Triple("whatsapp_compose","Propose WhatsApp composition, not sending or calling.",mapOf("recipient" to "string","message" to "string")),
+   Triple("dial","Propose dialer composition for a contact alias, phone or reserved recipient 'selected contact'. No call is placed until the user acts.",mapOf("recipient" to "string")),
+   Triple("sms_compose","Propose an SMS composer; recipient may be 'selected contact' (resolved only on device). Does not send automatically.",mapOf("recipient" to "string","message" to "string")),
+   Triple("whatsapp_compose","Propose WhatsApp composition (recipient may be 'selected contact'), not sending or calling.",mapOf("recipient" to "string","message" to "string")),
    Triple("set_timer","Propose an Android timer.",mapOf("seconds" to "integer")),
    Triple("set_alarm","Propose an Android alarm.",mapOf("hour" to "integer","minute" to "integer")),
    Triple("save_memory","Propose a non-secret memory. Explicit device approval is required.",mapOf("label" to "string","value" to "string")),
@@ -98,12 +98,15 @@ fun parseUserCommand(text:String):ToolAction? {
 }
 
 fun resolveInstalledApp(apps:List<InstalledApp>,input:String):InstalledApp {
- val matches=apps.filter{it.label.equals(input.trim(),true)||it.packageName==input.trim()}.distinctBy{it.packageName}
+ val query=input.trim()
+ val trusted=mapOf("youtube" to "com.google.android.youtube","chrome" to "com.android.chrome","google chrome" to "com.android.chrome","maps" to "com.google.android.apps.maps","google maps" to "com.google.android.apps.maps")
+ trusted[query.lowercase(Locale.ROOT)]?.let{pkg->apps.find{it.packageName==pkg}?.let{return it}}
+ val matches=apps.filter{it.label.equals(query,true)||it.packageName==query}.distinctBy{it.packageName}
  require(matches.size==1){if(matches.isEmpty())"No exact app match. Choose an installed app from Tools." else "Several apps match. Choose one in Tools."}
  return matches.single()
 }
 fun resolveContactNumber(contacts:List<DeviceContact>,input:String):DeviceContact {
- val matches=contacts.filter{it.label.equals(input.trim(),true)}.distinctBy{it.phone}
+ val matches=contacts.filter{it.label.equals(input.trim(),true)}.distinctBy{it.lookup+"|"+canonicalPhone(it.phone)}
  require(matches.size==1){"Contact is missing or ambiguous. Select its number in Contacts and save an alias."}
  return matches.single()
 }

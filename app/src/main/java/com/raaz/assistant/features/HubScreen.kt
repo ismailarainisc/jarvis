@@ -34,11 +34,12 @@ import org.json.JSONObject
  var tab by rememberSaveable(initial){mutableStateOf(initial)}
  DisposableEffect(vm){vm.visible(true);vm.loadApps(activity);onDispose{vm.visible(false)}}
  Column(Modifier.fillMaxSize()){
-  Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=8.dp)){listOf("Control","Tools","Contacts","Memory","MCP","Tasks","Background","Diagnostics").forEach{label->FilterChip(selected=tab==label,onClick={tab=label},label={Text(label)},modifier=Modifier.padding(3.dp).testTag("hub-tab-$label"))}}
+  Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=8.dp)){listOf("Control","Permissions","Tools","Contacts","Memory","MCP","Tasks","Background","Diagnostics").forEach{label->FilterChip(selected=tab==label,onClick={tab=label},label={Text(label)},modifier=Modifier.padding(3.dp).testTag("hub-tab-$label"))}}
   Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Text(tab,style=MaterialTheme.typography.headlineSmall)
    state.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};state.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
    when(tab){
+    "Permissions"->com.raaz.assistant.setup.PermissionCenter(activity,{vm.foreground(true)})
     "Control"->ControlCenter(vm,state,activity,foregroundLive,{tab=it})
     "Tools"->ToolsPanel(vm,state,activity,{tab="Tasks"})
     "Contacts"->ContactsPanel(vm,state,activity)
@@ -84,9 +85,12 @@ import org.json.JSONObject
  val calls=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){vm.flag("direct_calls",it);if(!it)vm.fail("Direct calls remain disabled. Use the dialer instead.")}
  Text("Contacts stay on this device. Choosing an alias never authorizes a call or message. WhatsApp needs an international +country-code number.")
  OutlinedTextField(query,{query=it},label={Text("Find contact")},modifier=Modifier.fillMaxWidth());Button(onClick={contacts.launch(Manifest.permission.READ_CONTACTS)}){Text("Grant / search contacts")}
- s.contacts.forEach{c->OutlinedButton(onClick={recipient=c.label;phone=c.phone;lookup=c.lookup},modifier=Modifier.fillMaxWidth()){Text("${c.label} · ${c.phone}")}}
+ s.contacts.forEach{c->OutlinedButton(onClick={recipient=c.label;phone=c.phone;lookup=c.lookup;vm.selectRecipient(c)},modifier=Modifier.fillMaxWidth()){Text("${c.label} · ${c.phone}")}}
  OutlinedTextField(recipient,{recipient=it;lookup=""},label={Text("Recipient name")},modifier=Modifier.fillMaxWidth());OutlinedTextField(phone,{phone=it;lookup=""},label={Text("Phone number")},modifier=Modifier.fillMaxWidth())
  OutlinedTextField(alias,{alias=it},label={Text("Alias, e.g. Baba / Staff")},modifier=Modifier.fillMaxWidth());TextButton(onClick={vm.saveMemory(null,"alias",alias,phone,lookup)}){Text("Save alias locally (enable Memory first)")}
+ s.selected?.let{Text("Selected for future previews: ${it.label} · ${it.phone}. No communication is authorized by selection.")}
+ OutlinedButton(onClick={vm.selectRecipient(DeviceContact(recipient,phone,lookup))}){Text("Use this recipient for voice previews")}
+ TextButton(onClick=vm::clearRecipient){Text("Clear selected recipient")}
  OutlinedTextField(message,{message=it},label={Text("Message to compose")},modifier=Modifier.fillMaxWidth())
  for((name,label) in listOf("dial" to "Prepare SIM dialer","sms_compose" to "Prepare SMS composer","whatsapp_compose" to "Prepare WhatsApp composer"))Button(onClick={vm.propose(a,ToolAction(name,JSONObject().put("recipient",recipient.ifBlank{phone}).put("phone",phone).put("lookup",lookup).put("message",message)))},modifier=Modifier.fillMaxWidth()){Text(label)}
  FlagRow("Opt in to direct calls after explicit approval",s.flags["direct_calls"]==true){if(it)calls.launch(Manifest.permission.CALL_PHONE)else vm.flag("direct_calls",false)}
@@ -136,7 +140,7 @@ import org.json.JSONObject
 }
 @Composable private fun DiagnosticsPanel(s:HubState,live:GeminiLiveUi){
  val background by BackgroundRuntime.live.collectAsStateWithLifecycle();val running by BackgroundRuntime.running.collectAsStateWithLifecycle()
- Text("JARVIS 7.0-actions · com.raaz.assistant · API ${Build.VERSION.SDK_INT}")
+ Text("JARVIS 7.1-reliability · com.raaz.assistant · API ${Build.VERSION.SDK_INT}")
  Text("Foreground: ${live.phase}; background service: $running; background Gemini: ${background.phase}")
  AssistantVisibility.diagnostic?.let{Text(it)}
  Text("Audio lease occupied: ${AudioOwnership.process.occupied()}; cleanup quarantined: ${AudioOwnership.process.failed()}")

@@ -1,0 +1,23 @@
+{
+  "tests": 292,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": 25,
+  "build": "PASS",
+  "command": "./gradlew clean assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug",
+  "duration": "9m 9s",
+  "lint": {
+    "errors": 0,
+    "warnings": 3,
+    "category": "GradleDependency"
+  },
+  "compiler_warnings": 1,
+  "backend_tests": {
+    "passed": 9,
+    "scope": "isolated automated tests, backend unchanged"
+  },
+  "instrumentation_execution": "NOT TESTED",
+  "real_device": "NOT TESTED",
+  "live_provider": "NOT TESTED"
+}

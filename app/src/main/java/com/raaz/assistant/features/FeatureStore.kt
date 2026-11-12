@@ -32,6 +32,10 @@ class FeatureStore(context:Context,databaseName:String="jarvis_features.db",pref
  fun relevantContext(query:String):String {if(!flag("memory_enabled")||!flag("memory_cloud"))return "";return memoryContext(memories(),true,true,query)}
  fun saveMcpConfiguration(raw:String,credentialId:String?=null,token:String?=null){val changes=mutableMapOf<String,Any?>("mcp_servers" to raw);if(credentialId!=null&&!token.isNullOrBlank())changes["key_mcp_$credentialId"]=cipher.encrypt(token);prefs.edit(changes)}
  @Synchronized override fun tasks():List<AgentTask> = db.readableDatabase.rawQuery("SELECT * FROM tasks ORDER BY created DESC LIMIT 200",null).use{c->buildList{while(c.moveToNext())add(AgentTask(c.getString(0),ToolAction.decode(c.getString(1)),c.getString(2),TaskStatus.valueOf(c.getString(3)),c.getString(4),c.getLong(5)))}}
+ @Synchronized override fun task(id:String):AgentTask? = db.readableDatabase.rawQuery("SELECT * FROM tasks WHERE id=?",arrayOf(id)).use{c->if(!c.moveToFirst())null else AgentTask(c.getString(0),ToolAction.decode(c.getString(1)),c.getString(2),TaskStatus.valueOf(c.getString(3)),c.getString(4),c.getLong(5))}
+ fun selectedRecipient()=SelectedRecipientPreferences(prefs).read()
+ fun selectRecipient(contact:DeviceContact)=SelectedRecipientPreferences(prefs).save(contact)
+ fun clearRecipient()=SelectedRecipientPreferences(prefs).clear()
  @Synchronized override fun insertTask(task:AgentTask){
   val database=db.writableDatabase
   database.beginTransaction()

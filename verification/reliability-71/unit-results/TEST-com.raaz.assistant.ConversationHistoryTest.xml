@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.ConversationHistoryTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:44" hostname="2489d07eb512" time="0.168">
+  <properties/>
+  <testcase name="oversizedHistoryIsRejectedBeforeParsing" classname="com.raaz.assistant.ConversationHistoryTest" time="0.159"/>
+  <testcase name="existingFormatRemainsReadable" classname="com.raaz.assistant.ConversationHistoryTest" time="0.003"/>
+  <testcase name="corruptHistoryDoesNotPretendToBeEmpty" classname="com.raaz.assistant.ConversationHistoryTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

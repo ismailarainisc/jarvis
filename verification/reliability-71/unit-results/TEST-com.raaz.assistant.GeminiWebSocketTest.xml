@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiWebSocketTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:45" hostname="2489d07eb512" time="0.217">
+  <properties/>
+  <testcase name="actualSocketSendsSetupAndReceivesTextAndBinaryEvents" classname="com.raaz.assistant.GeminiWebSocketTest" time="0.169"/>
+  <testcase name="cancelBeforeOpenCannotActivateTransport" classname="com.raaz.assistant.GeminiWebSocketTest" time="0.009"/>
+  <testcase name="authenticationFailureIsSanitized" classname="com.raaz.assistant.GeminiWebSocketTest" time="0.037"/>
+  <testcase name="arbitraryDestinationsAreRejectedBeforeAnyNetworkCall" classname="com.raaz.assistant.GeminiWebSocketTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

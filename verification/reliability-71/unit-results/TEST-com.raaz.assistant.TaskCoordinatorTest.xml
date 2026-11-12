@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.TaskCoordinatorTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:48" hostname="2489d07eb512" time="0.156">
+  <properties/>
+  <testcase name="malformedToolBecomesUnsupported" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.01"/>
+  <testcase name="explicitApprovalRunsOnceAndDoesNotInventCompletion" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.008"/>
+  <testcase name="proposalsFromUntrustedSourcesNeverExecuteAutomatically" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.004"/>
+  <testcase name="failedOutcomePersistenceIsUnknownAndCannotReplay" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.031"/>
+  <testcase name="unreadableLedgerCannotAuthorizeTool" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.003"/>
+  <testcase name="networkFailureIsSanitizedAndTerminal" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.016"/>
+  <testcase name="lockedDeviceCannotApprove" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.001"/>
+  <testcase name="cancellationRecordsUnknownExternalOutcomeAndNeverRetries" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.02"/>
+  <testcase name="concurrentApprovalsDoNotDuplicateCalls" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.009"/>
+  <testcase name="cancelledProposalCannotBeExecuted" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.005"/>
+  <testcase name="failedApprovalPersistenceCannotRunTool" classname="com.raaz.assistant.TaskCoordinatorTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

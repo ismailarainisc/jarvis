@@ -21,4 +21,6 @@ class WakeSessionTest {
  @Test fun failedCaptureCleanupQuarantinesFutureStarts()=scenario{s,c,v,_->s.arm();runCurrent();c.single().clean=false;c.single().wake!!();runCurrent();assertEquals(WakePhase.ERROR,s.state.value.phase);s.arm();runCurrent();assertEquals(1,c.size);assertEquals(0,v.starts)}
  @Test fun repeatedArmPauseDoesNotLeakCaptures()=scenario{s,c,_,_->repeat(10){s.arm();runCurrent();s.pause();runCurrent()};assertEquals(10,c.size);assertTrue(c.all{it.closes==1})}
  @Test fun actualCaptureFailurePausesWithoutAutomaticRetry()=scenario{s,c,v,_->s.arm();runCurrent();c.single().failure!!();runCurrent();assertEquals(WakePhase.ERROR,s.state.value.phase);advanceTimeBy(30000);runCurrent();assertEquals(1,c.size);assertEquals(0,v.starts)}
+ @Test fun suspendedWakeInitializationHasDeadlineAndCannotStartVoice()=runTest{val capture=Capture().also{it.hold=CompletableDeferred()};val voice=Voice();val scope=CoroutineScope(SupervisorJob()+StandardTestDispatcher(testScheduler));val session=WakeSession(scope,WakeFactory{capture},voice,{true},initializationTimeoutMs=100);try{session.arm();advanceTimeBy(150);runCurrent();assertEquals(WakePhase.ERROR,session.state.value.phase);assertEquals(1,capture.closes);assertEquals(0,voice.starts);capture.wake?.invoke();runCurrent();assertEquals(0,voice.starts)}finally{session.stop();scope.cancel()}}
+
 }

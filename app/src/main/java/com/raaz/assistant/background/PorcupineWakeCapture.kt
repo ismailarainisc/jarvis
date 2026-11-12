@@ -22,10 +22,10 @@ class PorcupineWakeCapture(private val context:Context,private val authorized:()
   val store=FeatureStore(context)
   try{
    detector=Porcupine.Builder().setAccessKey(store.secret("porcupine")).setKeyword(Porcupine.BuiltInKeyword.JARVIS).build(context)
-   val model=detector!!;check(allowed()&&!stopped)
+   val model=detector!!;ensureActive();check(allowed()&&!stopped)
    val minimum=AudioRecord.getMinBufferSize(model.sampleRate,AudioFormat.CHANNEL_IN_MONO,AudioFormat.ENCODING_PCM_16BIT);check(minimum>0)
    recorder=AudioRecord.Builder().setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION).setAudioFormat(AudioFormat.Builder().setSampleRate(model.sampleRate).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_IN_MONO).build()).setBufferSizeInBytes(maxOf(minimum*2,model.frameLength*4)).build()
-   check(recorder!!.state==AudioRecord.STATE_INITIALIZED&&allowed()&&!stopped);recorder!!.startRecording();check(recorder!!.recordingState==AudioRecord.RECORDSTATE_RECORDING)
+   ensureActive();check(recorder!!.state==AudioRecord.STATE_INITIALIZED&&allowed()&&!stopped);recorder!!.startRecording();check(recorder!!.recordingState==AudioRecord.RECORDSTATE_RECORDING)
    thread=Thread({try{
     val frame=ShortArray(model.frameLength);var offset=0;var last=android.os.SystemClock.elapsedRealtime()
     while(!stopped){

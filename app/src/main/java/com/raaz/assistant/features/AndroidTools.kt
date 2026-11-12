@@ -67,7 +67,7 @@ class AndroidTools(private val activity:Activity,private val store:FeatureStore,
     val phone=a.optString("phone");if(!validPhone(phone))return@withContext ToolOutcome(TaskStatus.FAILED,"Recipient needs to be resolved again.")
     val lookup=a.optString("lookup")
     if(lookup.isNotBlank()){
-     val current=try{withContext(Dispatchers.IO){resolver.contactStillMatches(lookup,phone)}}catch(e:Exception){return@withContext ToolOutcome(TaskStatus.NEEDS_PERMISSION,"Contacts access is required to verify this saved recipient.")}
+     val current=try{resolver.contactStillMatches(lookup,phone)}catch(e:CancellationException){throw e}catch(e:SecurityException){return@withContext ToolOutcome(TaskStatus.NEEDS_PERMISSION,"Contacts access is required to verify this saved recipient.")}catch(e:Exception){return@withContext ToolOutcome(TaskStatus.FAILED,"Contacts provider could not verify the recipient. No intent was launched; recheck the provider and prepare again.")}
      if(!current)return@withContext ToolOutcome(TaskStatus.FAILED,"Contact changed. Select the current number and approve a new request.")
     }
     when(action.name){
@@ -82,7 +82,7 @@ class AndroidTools(private val activity:Activity,private val store:FeatureStore,
     withContext(Dispatchers.IO){if(!store.flag("memory_enabled"))throw SecurityException();store.saveMemory(item);kotlin.check(store.memories().any{it.id==item.id&&it.label==item.label.trim()&&it.value==item.value})}
     ToolOutcome(TaskStatus.VERIFIED,"Exact new memory ID saved locally and read back after approval. No model training occurred.")
    }
-   "mcp_call"->{val server=readServers(store).find{it.id==a.getString("server")}?:return@withContext ToolOutcome(TaskStatus.UNSUPPORTED,"MCP server not configured.");if(a.optString("endpoint")!=server.endpoint)return@withContext ToolOutcome(TaskStatus.FAILED,"MCP destination changed. Prepare and approve a new request.");val token=if(store.secretPresent("mcp_${server.id}"))store.secret("mcp_${server.id}")else "";val result=mcp.invoke(server,token,a.getString("tool"),a.getJSONObject("arguments"),authorized={unlocked()&&readServers(store).any{it.id==server.id&&it.endpoint==server.endpoint&&it.enabled&&a.getString("tool") in it.allowed}});ToolOutcome(if(result.isError)TaskStatus.FAILED else TaskStatus.UNKNOWN_OUTCOME,"MCP tool returned ${if(result.isError)"an error" else "a result"}. This is not independent confirmation of external effects.\n${result.text}"+(if(result.cleanupConfirmed)"" else "\nSession closure could not be confirmed."))}
+   "mcp_call"->{val server=readServers(store).find{it.id==a.getString("server")}?:return@withContext ToolOutcome(TaskStatus.UNSUPPORTED,"MCP server not configured.");if(a.optString("endpoint")!=server.endpoint)return@withContext ToolOutcome(TaskStatus.FAILED,"MCP destination changed. Prepare and approve a new request.");val token=if(store.secretPresent("mcp_${server.id}"))store.secret("mcp_${server.id}")else "";val result=try{mcp.invoke(server,token,a.getString("tool"),a.getJSONObject("arguments"),authorized={unlocked()&&readServers(store).any{it.id==server.id&&it.endpoint==server.endpoint&&it.enabled&&a.getString("tool") in it.allowed}})}catch(e:CancellationException){throw e}catch(e:McpException){return@withContext ToolOutcome(if(e.toolCallIssued)TaskStatus.UNKNOWN_OUTCOME else TaskStatus.FAILED,(e.message?:"MCP request failed.")+if(e.toolCallIssued)" Tool request may have reached the server; inspect before manual retry." else " No tools/call request was issued; check configuration before preparing again.")};ToolOutcome(if(result.isError)TaskStatus.FAILED else TaskStatus.UNKNOWN_OUTCOME,"MCP tool returned ${if(result.isError)"an error" else "a result"}. This is not independent confirmation of external effects.\n${result.text}"+(if(result.cleanupConfirmed)"" else "\nSession closure could not be confirmed."))}
    "scroll_app","back_app"->{if(!store.flag("automation_${a.getString("package")}"))return@withContext ToolOutcome(TaskStatus.UNSUPPORTED,"Enable scoped automation for this app first.");ScopedAutomationService.perform(activity,a.getString("package"),if(action.name=="back_app")"back" else a.getString("direction"),stillAllowed={store.flag("automation_${a.getString("package")}")})}
    else->ToolOutcome(TaskStatus.UNSUPPORTED,"Tool not implemented.")
   }
@@ -97,7 +97,7 @@ class ToolResolver(private val context:Context,private val store:FeatureStore) {
   if(ContextCompat.checkSelfPermission(context,Manifest.permission.READ_CONTACTS)!=PackageManager.PERMISSION_GRANTED)throw SecurityException("Contacts permission is not granted.")
   if(query.isBlank())return@withContext emptyList()
   val uri=Uri.withAppendedPath(ContactsContract.CommonDataKinds.Phone.CONTENT_FILTER_URI,Uri.encode(query.take(100)))
-  context.contentResolver.query(uri,arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY),null,null,null)?.use{c->buildList{while(size<30&&c.moveToNext()){val phone=c.getString(1).orEmpty();if(validPhone(phone))add(DeviceContact(c.getString(0).orEmpty(),phone,c.getString(2).orEmpty()))}}}?:emptyList()
+  contactQuery(context.contentResolver,uri,arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY)){c->buildList{while(size<30&&c.moveToNext()){val phone=c.getString(1).orEmpty();if(validPhone(phone))add(DeviceContact(c.getString(0).orEmpty(),phone,c.getString(2).orEmpty()))}}}
  }
  suspend fun prepare(action:ToolAction):ToolAction=withContext(Dispatchers.IO){
   val copy=ToolAction.decode(action.encode());val a=copy.args
@@ -114,7 +114,10 @@ class ToolResolver(private val context:Context,private val store:FeatureStore) {
   }
   if(copy.name in setOf("dial","direct_call","sms_compose","whatsapp_compose")&&!a.has("phone")){
    val recipient=a.getString("recipient").trim()
-   if(validPhone(recipient))a.put("phone",recipient)else {
+   if(selectedRecipientReference(recipient)){
+    val selected=store.selectedRecipient()?:error("Choose a selected recipient in Contacts first")
+    a.put("recipient",selected.label).put("phone",selected.phone).put("lookup",selected.lookup)
+   }else if(validPhone(recipient))a.put("phone",recipient)else {
     val alias=if(store.flag("memory_enabled"))store.memories().find{it.kind=="alias"&&normalizeAlias(it.label)==normalizeAlias(recipient)}else null
     if(alias!=null){a.put("phone",alias.value);a.put("lookup",alias.contactLookup)}else{
      val selected=resolveContactNumber(contacts(recipient),recipient)
@@ -127,8 +130,8 @@ class ToolResolver(private val context:Context,private val store:FeatureStore) {
   copy
  }
 
- fun contactStillMatches(lookup:String,phone:String):Boolean {
+ suspend fun contactStillMatches(lookup:String,phone:String):Boolean {
   if(ContextCompat.checkSelfPermission(context,Manifest.permission.READ_CONTACTS)!=PackageManager.PERMISSION_GRANTED)throw SecurityException()
-  return context.contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY+"=?",arrayOf(lookup),null)?.use{c->var found=false;while(c.moveToNext())if(c.getString(0)==phone)found=true;found}?:false
+  return contactQuery(context.contentResolver,ContactsContract.CommonDataKinds.Phone.CONTENT_URI,arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY+"=?",arrayOf(lookup)){c->var found=false;while(c.moveToNext())if(samePhone(c.getString(0).orEmpty(),phone))found=true;found}
  }
 }

@@ -22,7 +22,7 @@ class ApprovedToolRequests(private val ledger:TaskLedger,private val prepare:sus
    }
   }
   try {
-   val initial=ledger.tasks().find{it.id==id}?:error("Task unavailable")
+   val initial=ledger.task(id)?:error("Task unavailable")
    val result=if(initial.status==TaskStatus.NEEDS_APPROVAL)ToolApprovalAwaiter(ledger,timeoutMs=timeoutMs).await(id,enabled)else initial
    return providerTaskResult(result)
   }catch(e:CancellationException){withContext(NonCancellable){cancel(session,listOf(call.id))};throw e}
