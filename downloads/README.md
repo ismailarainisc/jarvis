@@ -1,13 +1,14 @@
-# JARVIS 6.0 — verified development downloads
+# JARVIS 6.1 — native Home development downloads
 
-- [Android APK](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live.apk)
-- [Complete Android Studio source ZIP](https://github.com/ismailarainisc/jarvis/raw/refs/heads/main/downloads/Jarvis-Gemini-Live-Source.zip)
+- [Android APK](Jarvis-Gemini-Live.apk?raw=true)
+- [Complete Android Studio source ZIP](Jarvis-Gemini-Live-Source.zip?raw=true)
 - [SHA-256 checksums](SHA256SUMS)
-- [Actual implementation/evidence and unsupported capabilities](../ASSISTANT-VERIFICATION.md)
-- [Setup, permissions, privacy and real-device checklist](../ASSISTANT-GUIDE.md)
+- [Current native Home implementation/evidence and limitations](../HOME-VOICE-REPORT.md)
+- [Setup and actual-device checklist](../HOME-VOICE-GUIDE.md)
+- [Preserved assistant capabilities and previous phase evidence](../ASSISTANT-VERIFICATION.md)
 
-VersionCode8 / 6.0-assistant / com.raaz.assistant. Development APK signed with the previous workspace certificate; private signing key is excluded. Clean debug/test-APK build passed; 177 JVM tests passed; lint 0 errors / 3 dependency-update warnings; unchanged backend fixtures 9/9 passed.
+VersionCode9 / 6.1-native-home / com.raaz.assistant. Development APK signed with the previous workspace certificate; private signing key excluded. Exact final test/lint results are in ../verification/home-voice/summary.json and ../HOME-VOICE-REPORT.md.
 
-New source implements tools, contact aliases, approved calls/composers, memory, MCP, background wake handoff, assistant-role foundation, scoped navigation and diagnostics. Google/Picovoice, real devices, calls/messages, accessibility and external MCP verification remain NOT TESTED. Wake mode requires your own Picovoice AccessKey/license/activation plus Google configuration. No universal app control, automatic personal WhatsApp/SMS sending, lock bypass or production-readiness claim.
+Home START defaults to the existing native Gemini Live engine; advanced voice settings shares the same foreground session. Android SpeechRecognizer/TTS is a separately selected fallback. No actual Gemini connection or Android-device audio verification occurred: no credential, emulator or phone was available. No production-readiness claim.
 
-The source ZIP excludes generated builds and the large APK/ZIP download files, while retaining source, wrapper, tests, backend and evidence.
+These relative links download the files from the branch/commit being viewed. This update is submitted on feat/unified-gemini-home for PR review; main retains its previous release until merged. Source excludes generated builds, credentials, private signing keys and recursive APK/ZIP download files.

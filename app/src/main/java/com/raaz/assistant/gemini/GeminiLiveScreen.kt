@@ -1,61 +1,75 @@
 package com.raaz.assistant.gemini
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.raaz.assistant.data.AssistantState
-import com.raaz.assistant.live.MeasuredWaveform
-import com.raaz.assistant.ui.JarvisFace
+import com.raaz.assistant.ui.AssistantConnectionBadge
+import com.raaz.assistant.voice.*
 
-@Composable fun GeminiLiveScreen(controller:GeminiLiveController){
- DisposableEffect(controller){controller.setScreenVisible(true);onDispose{controller.setScreenVisible(false)}}
- val ui by controller.state.collectAsStateWithLifecycle();var key by remember{mutableStateOf("")};var model by remember{mutableStateOf(controller.model())};var voice by remember{mutableStateOf(controller.voice())}
- val permission=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){if(it)controller.start()else controller.permissionDenied()}
- Column(Modifier.fillMaxSize()){
- Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
-  Text("Gemini Live",style=MaterialTheme.typography.headlineSmall);Text("Google AI Studio · native Gemini audio")
-  Text("Connection: ${ui.connection}",color=if(ui.connection=="ERROR")MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
-  val face=ui.phase.visualState()
-  Box(Modifier.fillMaxWidth(),contentAlignment=Alignment.Center){JarvisFace(face,ui.microphoneLevel,ui.outputLevel,ui.muted)}
-  Text(when(ui.phase){GeminiPhase.USER_SPEAKING->"INPUT AUDIO ACTIVITY";GeminiPhase.ASSISTANT_SPEAKING->"OUTPUT AUDIO ACTIVITY";else->ui.phase.name.replace('_',' ')},style=MaterialTheme.typography.titleMedium)
-  if(ui.playback)Text("Native output has pending audio; physical audibility requires device verification.",style=MaterialTheme.typography.bodySmall)
-  ui.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};ui.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
-  Text("Start sends microphone audio directly to Google. Your key is encrypted on this device. No OpenAI account or backend is needed for personal API-key mode. Free-tier availability, model access and quota depend on Google and your account.",style=MaterialTheme.typography.bodySmall)
-  if(ui.active){MeasuredWaveform("Microphone PCM",ui.microphoneLevel,ui.microphoneSamples,ui.microphoneSamples>0,ui.muted);MeasuredWaveform("Gemini playback PCM",ui.outputLevel,ui.outputSamples,ui.outputSamples>0,false)
-   Text("Capture engine: ${if(ui.capture) "running" else "not running"} · PCM queued for Google: ${ui.sentBytes} bytes · Received PCM: ${ui.receivedBytes} bytes",style=MaterialTheme.typography.bodySmall)
-   if(ui.muted)Text("Capture may remain active, but microphone frames are not transmitted while muted.",style=MaterialTheme.typography.bodySmall)
-   Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)){ui.routes.forEach{route->FilterChip(selected=route.id==ui.route,onClick={controller.selectRoute(route.id)},label={Text(route.label)})}}
-   Text("Server completed turns: ${ui.turnCount} · Server interruptions: ${ui.interruptionCount}",style=MaterialTheme.typography.bodySmall)
+/** Official Live guide links native voices to Google's speech-generation voice catalog.
+ * Examples verified 2026-11-12. Actual access still depends on the chosen model/account. */
+object DocumentedGeminiVoices {val examples=listOf("Kore","Puck","Charon","Fenrir","Aoede")}
+
+/** Configuration and Home share the same controller. No screen-owned microphone or disposal hook. */
+@Composable fun GeminiLiveScreen(
+ controller:GeminiLiveController,voiceState:HomeVoiceUi,
+ onStart:()->Unit,onStop:()->Unit,onMute:()->Unit,onSaved:()->Unit,backgroundRunning:Boolean
+) {
+ val ui by controller.state.collectAsStateWithLifecycle()
+ val config by controller.configuration.collectAsStateWithLifecycle()
+ var key by remember{mutableStateOf("")}
+ var model by rememberSaveable(config.model){mutableStateOf(config.model)}
+ var voice by rememberSaveable(config.voice){mutableStateOf(config.voice)}
+ var voicesExpanded by remember{mutableStateOf(false)}
+ val editable=!ui.active&&!voiceState.switching&&!backgroundRunning
+ Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+  Text("Advanced voice settings",style=MaterialTheme.typography.headlineSmall)
+  Text("The same natural Gemini voice on Home",style=MaterialTheme.typography.titleMedium,color=MaterialTheme.colorScheme.primary)
+  AssistantConnectionBadge(nativePresentation(ui).phase)
+  Text("Saved voice: ${config.voice.ifBlank{"not configured"}}\nSaved model: ${config.model.ifBlank{"not configured"}}")
+  Text("Saving configuration is not a connection test. Home START and the control below use the same Gemini session, microphone and native audio playback. Device TTS is only used in the explicitly selected Android fallback mode.",style=MaterialTheme.typography.bodyMedium)
+  ui.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
+  config.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
+  voiceState.error?.let{Text(it,color=MaterialTheme.colorScheme.error)}
+  ui.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
+  if(backgroundRunning)Text("Stop background mode before editing voice configuration or starting a foreground conversation.",color=MaterialTheme.colorScheme.error)
+  OutlinedTextField(model,{model=it},enabled=editable,label={Text("Gemini Live model ID")},supportingText={Text("Use a Live/audio model available to your Google project.")},modifier=Modifier.fillMaxWidth())
+  Box {
+   OutlinedButton(onClick={voicesExpanded=true},enabled=editable,modifier=Modifier.fillMaxWidth()){Text("Choose documented voice example")}
+   DropdownMenu(expanded=voicesExpanded,onDismissRequest={voicesExpanded=false}) {
+    DocumentedGeminiVoices.examples.forEach{name->DropdownMenuItem(text={Text(name)},onClick={voice=name;voicesExpanded=false})}
+   }
   }
-  Text("Your transcript",style=MaterialTheme.typography.titleSmall);SelectionContainer{Text(if(ui.inputText.isEmpty())"No transcript received." else ui.inputText)};if(ui.interimText.isNotEmpty())Text("Interim: ${ui.interimText}",style=MaterialTheme.typography.bodySmall)
-  Text("Gemini transcript",style=MaterialTheme.typography.titleSmall);SelectionContainer{Text(if(ui.outputText.isEmpty())"No transcript received." else ui.outputText)}
-  HorizontalDivider();Text("Gemini Live settings",style=MaterialTheme.typography.titleMedium)
-  OutlinedTextField(model,{model=it},enabled=!ui.active,label={Text("Gemini Live model ID")},modifier=Modifier.fillMaxWidth())
-  Text("Use a Live/audio model available in your AI Studio account. A text-only Gemini model will not work here.",style=MaterialTheme.typography.bodySmall)
-  OutlinedTextField(voice,{voice=it},enabled=!ui.active,label={Text("Voice name (for example Kore)")},modifier=Modifier.fillMaxWidth())
-  OutlinedTextField(key,{key=it},enabled=!ui.active,label={Text(if(controller.configured())"Replace Google API key (optional)" else "Google AI Studio API key")},visualTransformation=PasswordVisualTransformation(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),modifier=Modifier.fillMaxWidth())
-  Button(enabled=!ui.active,onClick={if(controller.save(model,voice,key))key=""}){Text("Save Gemini settings")}
-  TextButton(enabled=!ui.active,onClick=controller::importSelected){Text("Use selected Gemini provider key")}
-  TextButton(enabled=!ui.active,onClick=controller::deleteKey){Text("Delete Gemini Live key")}
-  Text("For distributing a production app, provision short-lived Gemini tokens from a trusted backend instead of distributing a shared API key. This personal mode stores only the key you enter; no key is embedded in the APK.",style=MaterialTheme.typography.bodySmall)
- }
- Row(Modifier.fillMaxWidth().padding(12.dp),horizontalArrangement=Arrangement.spacedBy(8.dp)){
-  Button(enabled=ui.phase!=GeminiPhase.DISCONNECTING,onClick={if(ui.active)controller.stop()else permission.launch(Manifest.permission.RECORD_AUDIO)},modifier=Modifier.weight(1f).heightIn(min=48.dp)){Text(if(ui.active) "STOP" else "START")}
-  if(ui.active)OutlinedButton(enabled=ui.ready,onClick=controller::mute,modifier=Modifier.weight(1f).heightIn(min=48.dp)){Text(if(ui.muted) "Unmute" else "Mute")}
- }
+  OutlinedTextField(voice,{voice=it},enabled=editable,label={Text("Native Gemini voice name")},supportingText={Text("You may keep a supported custom name. Availability depends on model/account; your saved preference is never silently replaced.")},modifier=Modifier.fillMaxWidth())
+  Text("Urdu, Hindi and English conversation follow your selected model's actual capabilities. No device-TTS substitution is performed for a native session.",style=MaterialTheme.typography.bodySmall)
+  OutlinedTextField(key,{key=it},enabled=editable,label={Text(if(config.configured)"Replace Google credential (blank keeps saved)" else  "Google AI Studio credential")},visualTransformation=PasswordVisualTransformation(),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password),modifier=Modifier.fillMaxWidth())
+  Button(enabled=editable,onClick={if(controller.save(model,voice,key)){key="";onSaved()}},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Save native voice configuration")}
+  TextButton(enabled=editable,onClick={controller.importSelected();onSaved()}){Text("Use selected Gemini provider key")}
+  TextButton(enabled=editable,onClick={controller.deleteKey();onSaved()}){Text("Delete Gemini Live key")}
+  HorizontalDivider()
+  if(ui.active) {
+   Text("Live audio diagnostics",style=MaterialTheme.typography.titleMedium)
+   Text("Capture: ${if(ui.capture) "running" else "not running"} · PCM queued for Google: ${ui.sentBytes} bytes · Received PCM: ${ui.receivedBytes} bytes",style=MaterialTheme.typography.bodySmall)
+   Text("Completed turns: ${ui.turnCount} · Server interruptions: ${ui.interruptionCount}",style=MaterialTheme.typography.bodySmall)
+   if(ui.playback)Text("Native output has pending audio. Physical audibility requires device verification.",style=MaterialTheme.typography.bodySmall)
+   Text("Audio output",style=MaterialTheme.typography.titleSmall)
+   if(ui.routes.isEmpty())Text("No selectable communication routes reported by Android.",style=MaterialTheme.typography.bodySmall)
+   ui.routes.forEach { route ->
+    FilterChip(selected=route.id==ui.route,enabled=ui.ready,onClick={controller.selectRoute(route.id)},label={Text(route.label)},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp))
+   }
+  }
+  Button(enabled=ui.active||(!voiceState.switching&&voiceState.permissionRequest==null&&!backgroundRunning),onClick={if(ui.active)onStop()else onStart()},modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)){Text(if(ui.active)"STOP shared conversation" else  "START native Gemini")}
+  OutlinedButton(enabled=ui.ready,onClick=onMute,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text(if(ui.muted)"Unmute microphone" else  "Mute microphone")}
+  Text("Home ↔ Voice settings preserves this shared session. Other screens and app backgrounding stop foreground audio. The opt-in background wake service remains a separate, mutually exclusive mode.",style=MaterialTheme.typography.bodySmall)
+  Text("Microphone audio is sent to Google only after explicit START and actual setupComplete. Your credential remains encrypted on this device. Quota, pricing, model access and voice availability depend on Google. Shared-account distributed apps should use trusted short-lived credentials rather than embed developer keys.",style=MaterialTheme.typography.bodySmall)
  }
 }
