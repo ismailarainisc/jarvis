@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-12",
+  "baseline": "17160996dc4732d80fb0c2897eaa3885565b3d69",
+  "branch": "feat/unified-gemini-home",
+  "package": "com.raaz.assistant",
+  "versionCode": 9,
+  "versionName": "6.1-native-home",
+  "cleanCommand": "./gradlew clean assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug --no-daemon --max-workers=2",
+  "cleanResult": "PASS",
+  "finalUiCommand": "./gradlew assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug --no-daemon --max-workers=2",
+  "finalUiResult": "PASS",
+  "jvm": {
+    "tests": 205,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": 22,
+  "lint": {
+    "Error": 0,
+    "Warning": 3,
+    "Information": 0,
+    "Fatal": 0
+  },
+  "legacyBackendFixtureTests": {
+    "passed": 9,
+    "failed": 0,
+    "liveProvider": false
+  },
+  "instrumentationApk": "compiled, NOT EXECUTED",
+  "device": "NOT TESTED \u2014 adb has no connected device and emulator binary unavailable",
+  "geminiLive": "NOT TESTED \u2014 no legitimate credential/account supplied",
+  "signedApk": "apksigner verified v1/v2/v3; zipalign 16KB passed; existing development certificate retained",
+  "certificateSha256": "91cf099174951ce2d669a696a9277f85f93001198ba685ee6b2a19ef3fcd4aa5",
+  "notes": "Clean verification precedes the final empty-history error/wrapping UI patch. Final incremental build/lint/test tasks verify the final source. Unit fake ports/stores and fixtures are not hardware/service tests."
+}

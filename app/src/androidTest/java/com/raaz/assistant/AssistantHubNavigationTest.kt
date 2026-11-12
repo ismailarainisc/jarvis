@@ -9,6 +9,7 @@ import org.junit.Test
 class AssistantHubNavigationTest {
  @get:Rule val rule=createAndroidComposeRule<MainActivity>()
  @Test fun memoryToolsAndDiagnosticsHaveRealScreens(){
+  rule.onNodeWithTag("home-content").performScrollToNode(hasText("Tools & background"))
   rule.onNodeWithText("Tools & background").performClick()
   rule.onNodeWithText("Allow Gemini to propose tools (approval always required)").assertExists()
   rule.onNodeWithText("Memory").performClick()

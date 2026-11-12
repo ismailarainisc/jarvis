@@ -4,8 +4,12 @@ import android.content.Context
 import android.os.SystemClock
 import com.raaz.assistant.data.SettingsRepository
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /** Android/configuration facade. GeminiSession is the single state owner, including shutdown. */
+data class GeminiVoiceConfiguration(val model:String,val voice:String,val configured:Boolean,val error:String?=null)
+
 class GeminiLiveController(context:Context,beforeStart:()->Unit){
  private val app=context.applicationContext
  private val settings=SettingsRepository(app)
@@ -17,6 +21,10 @@ class GeminiLiveController(context:Context,beforeStart:()->Unit){
   GeminiAudioFactory{input,events->GeminiAudioEngine(input,events,{foreground&&visible&&androidx.core.content.ContextCompat.checkSelfPermission(app,android.Manifest.permission.RECORD_AUDIO)==android.content.pm.PackageManager.PERMISSION_GRANTED})},
   AndroidGeminiPlatforms(app){foreground&&visible},beforeStart=beforeStart,clock={SystemClock.elapsedRealtime()},toolBridge=AndroidGeminiToolBridge(app))
  val state=session.state
+ private fun readConfiguration()=try{GeminiVoiceConfiguration(settings.geminiLiveModel(),settings.geminiLiveVoice(),settings.hasGeminiLiveKey())}catch(e:Exception){GeminiVoiceConfiguration("","",false,"Saved voice settings could not be read. Re-enter model/voice; existing credentials were not overwritten.")}
+ private val mutableConfiguration=MutableStateFlow(readConfiguration())
+ val configuration=mutableConfiguration.asStateFlow()
+ private fun configurationChanged(){mutableConfiguration.value=readConfiguration()}
  fun setForeground(value:Boolean){foreground=value;if(!value)session.stop()}
  fun setScreenVisible(value:Boolean){visible=value;if(!value)session.stop()}
  fun model()=settings.geminiLiveModel()
@@ -24,11 +32,11 @@ class GeminiLiveController(context:Context,beforeStart:()->Unit){
  fun configured()=settings.hasGeminiLiveKey()
  fun save(model:String,voice:String,key:String):Boolean {
   if(state.value.active)return false
-  return try{settings.saveGeminiLive(model.trim(),voice.trim(),key.trim());session.configurationResult(notice="Gemini Live configuration saved. Connection has not been tested.");true}
+  return try{settings.saveGeminiLive(model.trim(),voice.trim(),key.trim());configurationChanged();session.configurationResult(notice="Gemini Live configuration saved. Connection has not been tested.");true}
   catch(e:Exception){session.configurationResult(error="Enter a valid Live model ID, voice and Google credential. Blank key preserves the saved credential.");false}
  }
- fun importSelected(){if(state.value.active)return;try{settings.importSelectedGeminiKey();session.configurationResult(notice="Selected Gemini provider credential imported securely.")}catch(e:Exception){session.configurationResult(error="Select a saved Google Gemini provider with a readable key first.")}}
- fun deleteKey(){if(!state.value.active){settings.removeGeminiLiveKey();session.configurationResult(notice="Gemini Live credential deleted.")}}
+ fun importSelected(){if(state.value.active)return;try{settings.importSelectedGeminiKey();configurationChanged();session.configurationResult(notice="Selected Gemini provider credential imported securely.")}catch(e:Exception){session.configurationResult(error="Select a saved Google Gemini provider with a readable key first.")}}
+ fun deleteKey(){if(!state.value.active){settings.removeGeminiLiveKey();configurationChanged();session.configurationResult(notice="Gemini Live credential deleted.")}}
  fun permissionDenied(){session.report(GeminiFailure(GeminiErrorCode.PERMISSION,"Microphone permission denied. Enable it in Android app settings."))}
  fun start(){if(destroyed)return
   if(!foreground||!visible){session.report(GeminiFailure(GeminiErrorCode.FOREGROUND,"Return to Gemini Live in the foreground before starting."));return}
