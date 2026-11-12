@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
   coordinator=HomeVoiceCoordinator(lifecycleScope,GeminiHomeAdapter(live),object:HomeFallbackVoice {
    override fun start(){fallbackEngine().start(vm.ui.value.settings.language)}
    override fun stop(){stopFallback()}
-   override fun active()=fallback?.isActive()==true
+   override fun active()=fallback?.isBusy()==true
   },VoicePreferences(AndroidSettingsStore(this)),{BackgroundRuntime.running.value||BackgroundRuntime.authorized},{vm.stop()})
   setContent {
    val microphone=rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()){granted->
@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
  private fun fallbackEngine():VoiceSessionManager {
   fallback?.let{return it}
   return VoiceSessionManager(this,object:VoiceSessionManager.Events {
-   override fun status(state:AssistantState){vm.status(state);vm.voiceActive(fallback?.isActive()==true)}
+   override fun status(state:AssistantState){vm.status(state);vm.voiceActive(fallback?.isBusy()==true)}
    override fun transcript(text:String)=vm.transcript(text)
    override fun level(value:Float)=vm.level(value)
    override fun turn(text:String){

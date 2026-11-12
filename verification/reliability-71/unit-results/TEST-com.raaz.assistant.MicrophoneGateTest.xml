@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.MicrophoneGateTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:47" hostname="2489d07eb512" time="0.007">
+  <properties/>
+  <testcase name="microphoneFrameAndNetworkQueueAreBounded" classname="com.raaz.assistant.MicrophoneGateTest" time="0.006"/>
+  <testcase name="muteUnmuteInvalidatesFrameCapturedBeforeEitherTransition" classname="com.raaz.assistant.MicrophoneGateTest" time="0.0"/>
+  <testcase name="sendFailureDoesNotCountUnsentBytes" classname="com.raaz.assistant.MicrophoneGateTest" time="0.0"/>
+  <testcase name="stopPreventsOldCaptureSendingIntoAnySession" classname="com.raaz.assistant.MicrophoneGateTest" time="0.001"/>
+  <testcase name="rapidMuteIsIdempotentAndOrdersStreamEnd" classname="com.raaz.assistant.MicrophoneGateTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

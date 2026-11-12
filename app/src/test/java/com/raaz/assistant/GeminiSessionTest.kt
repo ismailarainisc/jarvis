@@ -106,4 +106,23 @@ class GeminiSessionTest {
 
  @Test fun sequentialModelResponseDoesNotClaimAsyncScheduling(){val bridge=Bridge();scenario(bridge){f->f.session.start(GeminiConfiguration("gemini-3.1-flash-live-preview","Kore","isolated-test-key"));val c=f.connections[0];c.events.opened();runCurrent();c.events.message("""{"setupComplete":{}}""");runCurrent();c.events.message("""{"toolCall":{"functionCalls":[{"id":"sequential","name":"device_status","args":{}}]}}""");runCurrent();val response=org.json.JSONObject(c.messages.last()).getJSONObject("toolResponse").getJSONArray("functionResponses").getJSONObject(0);assertFalse(response.has("scheduling"));assertFalse(response.getJSONObject("response").has("scheduling"))}}
 
+ @Test fun cancellationBeforeDelayedFunctionCallCannotRecreateApproval(){val bridge=Bridge();scenario(bridge){f->ready(f);val c=f.connections[0];c.events.message("""{"toolCallCancellation":{"ids":["already-cancelled"]}}""");runCurrent();c.events.message("""{"toolCall":{"functionCalls":[{"id":"already-cancelled","name":"device_status","args":{}}]}}""");runCurrent();assertTrue(bridge.proposed.isEmpty());assertTrue(f.session.state.value.active)}}
+
+ @Test fun nativeToolApprovalRunnerAndReceivedAudioWorkThroughProductionPipeline(){
+  val records=linkedMapOf<String,com.raaz.assistant.features.AgentTask>()
+  val ledger=object:com.raaz.assistant.features.TaskLedger{
+   override fun tasks()=records.values.toList()
+   override fun insertTask(task:com.raaz.assistant.features.AgentTask){records[task.id]=task}
+   override fun transition(id:String,from:com.raaz.assistant.features.TaskStatus,to:com.raaz.assistant.features.TaskStatus,detail:String):Boolean{val old=records[id]?:return false;if(old.status!=from)return false;records[id]=old.copy(status=to,detail=detail);return true}
+  }
+  val requests=ApprovedToolRequests(ledger,{it},{true},2000)
+  val bridge=object:GeminiToolBridge{override fun declarations()=com.raaz.assistant.features.ToolRegistry.declarations();override suspend fun propose(session:String,call:GeminiFunctionCall)=requests.propose(session,call);override suspend fun cancel(session:String,ids:List<String>)=requests.cancel(session,ids);override suspend fun finished(session:String)=requests.finished(session)}
+  scenario(bridge){f->ready(f);val c=f.connections[0];c.events.message("""{"toolCall":{"functionCalls":[{"id":"battery","name":"device_status","args":{}}]}}""");runCurrent();val task=records.values.single();assertEquals(com.raaz.assistant.features.TaskStatus.NEEDS_APPROVAL,task.status)
+   var calls=0;val runner=com.raaz.assistant.features.ToolRunner{calls++;com.raaz.assistant.features.ToolOutcome(com.raaz.assistant.features.TaskStatus.VERIFIED,"Android snapshot: battery 51%; charging false; No active network. This does not test provider reachability.")}
+   val executor=com.raaz.assistant.features.TaskCoordinator(ledger,{true},runner);executor.approve(task.id);executor.approve(task.id);advanceTimeBy(300);runCurrent();assertEquals(1,calls)
+   val returned=org.json.JSONObject(c.messages.last()).getJSONObject("toolResponse").getJSONArray("functionResponses").getJSONObject(0).getJSONObject("response");assertEquals("verified",returned.getString("status"));assertTrue(returned.getString("deviceSnapshot").contains("51%"))
+   c.events.message("""{"serverContent":{"modelTurn":{"parts":[{"inlineData":{"mimeType":"audio/pcm;rate=24000","data":"AAA="}}]}}}""");runCurrent();assertEquals(1,f.audios[0].packets.size);assertTrue(f.session.state.value.active)
+  }
+ }
+
 }

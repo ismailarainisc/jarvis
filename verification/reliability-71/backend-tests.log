@@ -1,0 +1,21 @@
+
+> test
+> node --test server.test.mjs
+
+✔ rejects unauthorized before contacting provider (112.647017ms)
+✔ forwards documented JSON and returns validated answer (mock) (29.748308ms)
+✔ rejects malformed offers (42.996117ms)
+✔ maps access denied without upstream body (17.56661ms)
+✔ applies user session rate limits (15.199041ms)
+✔ expired sessions are rejected (10.510866ms)
+✔ missing server API key is reported (9.779162ms)
+✔ network failures are sanitized (42.945269ms)
+✔ malformed upstream SDP never becomes a successful answer (11.158439ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 845.754463

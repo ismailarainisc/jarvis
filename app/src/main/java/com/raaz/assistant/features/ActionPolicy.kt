@@ -24,12 +24,13 @@ fun providerTaskResult(task:AgentTask)=JSONObject().put("requestId",task.id).put
  else->"The operation did not complete. Review the local task status; do not invent success."
 }).also{if(task.status==TaskStatus.VERIFIED&&task.action.name=="device_status")publicDeviceSnapshot(task.detail)?.let{snapshot->it.put("deviceSnapshot",snapshot)}}
 /** Validation/preparation failures are durable records, not disappearing errors. */
-class ProposalFactory(private val ledger:TaskLedger,private val prepare:suspend (ToolAction)->ToolAction) {
+class ProposalFactory(private val ledger:TaskLedger,private val prepare:suspend (ToolAction)->ToolAction,private val timeoutMs:Long) {
+ constructor(ledger:TaskLedger,prepare:suspend (ToolAction)->ToolAction):this(ledger,prepare,15000)
  suspend fun create(action:ToolAction,source:String):AgentTask {
   val invalid=ToolRegistry.validate(action)
   val task=if(invalid!=null)AgentTask(action=ToolAction.decode(action.encode()),source=source,status=TaskStatus.UNSUPPORTED,detail=invalid)else try{
-   AgentTask(action=prepare(action),source=source,detail="Prepared only. Review target, arguments and required access before approving once.")
-  }catch(e:CancellationException){throw e}catch(e:SecurityException){AgentTask(action=ToolAction.decode(action.encode()),source=source,status=TaskStatus.NEEDS_PERMISSION,detail="Required access is missing or revoked. Open setup, grant only the relevant permission, then prepare a new request.")}
+   AgentTask(action=withTimeout(timeoutMs){prepare(action)},source=source,detail="Prepared only. Review target, arguments and required access before approving once.")
+  }catch(e:TimeoutCancellationException){AgentTask(action=ToolAction.decode(action.encode()),source=source,status=TaskStatus.FAILED,detail="Preparation timed out. No action executed; check permissions/provider availability before preparing again.")}catch(e:CancellationException){throw e}catch(e:SecurityException){AgentTask(action=ToolAction.decode(action.encode()),source=source,status=TaskStatus.NEEDS_PERMISSION,detail="Required access is missing or revoked. Open setup, grant only the relevant permission, then prepare a new request.")}
   catch(e:Exception){AgentTask(action=ToolAction.decode(action.encode()),source=source,status=TaskStatus.FAILED,detail="App/contact is missing, ambiguous, or configuration is unavailable. Choose the exact app/contact or repair configuration and prepare a new request. Nothing executed.")}
   ledger.insertTask(task);return task
  }
@@ -37,10 +38,10 @@ class ProposalFactory(private val ledger:TaskLedger,private val prepare:suspend 
 /** Suspends only a tool worker, never the Gemini receive/audio loop. */
 class ToolApprovalAwaiter(private val ledger:TaskLedger,private val pollMs:Long=250,private val timeoutMs:Long=90000) {
  suspend fun await(id:String,stillAllowed:()->Boolean={true}):AgentTask {
-  val result=withTimeoutOrNull(timeoutMs){while(true){val t=ledger.tasks().find{it.id==id}?:error("Task missing");if(!stillAllowed()&&t.status in pendingTaskStates){pendingTaskStates.forEach{from->ledger.transition(id,from,TaskStatus.CANCELLED,"Assistant tool permission was revoked before approval.")};return@withTimeoutOrNull ledger.tasks().first{it.id==id}};if(t.status !in pendingTaskStates&&t.status!=TaskStatus.EXECUTING)return@withTimeoutOrNull t;delay(pollMs)};@Suppress("UNREACHABLE_CODE") null}
+  val result=withTimeoutOrNull(timeoutMs){while(true){val t=ledger.task(id)?:error("Task missing");if(!stillAllowed()&&t.status in pendingTaskStates){pendingTaskStates.forEach{from->ledger.transition(id,from,TaskStatus.CANCELLED,"Assistant tool permission was revoked before approval.")};return@withTimeoutOrNull ledger.task(id)?:error("Task missing")};if(t.status !in pendingTaskStates&&t.status!=TaskStatus.EXECUTING)return@withTimeoutOrNull t;delay(pollMs)};@Suppress("UNREACHABLE_CODE") null}
   if(result!=null)return result
   ledger.transition(id,TaskStatus.NEEDS_APPROVAL,TaskStatus.CANCELLED,"Approval expired after 90 seconds. No action automatically executed or retried.")
-  val t=ledger.tasks().find{it.id==id}?:error("Task missing")
+  val t=ledger.task(id)?:error("Task missing")
   return if(t.status==TaskStatus.EXECUTING)t.copy(status=TaskStatus.UNKNOWN_OUTCOME,detail="Execution still in progress; no final result claimed.")else t
  }
 }

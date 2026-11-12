@@ -1,15 +1,16 @@
-# JARVIS 7.0 — Android action engine development downloads
+# JARVIS 7.1 — development and instrumentation artifacts
 
-- [Android development APK](Jarvis-Gemini-Live.apk?raw=true)
+- [Android app APK](Jarvis-Gemini-Live.apk?raw=true)
+- [Android instrumentation APK](Jarvis-7.1-androidTest.apk?raw=true)
 - [Complete Android Studio source ZIP](Jarvis-Gemini-Live-Source.zip?raw=true)
 - [SHA-256 checksums](SHA256SUMS)
-- [Current implementation, changed files and evidence](../ACTION-ENGINE-REPORT.md)
-- [Setup, capabilities and physical-device checklist](../ACTION-ENGINE-GUIDE.md)
-- [Audit and official protocol/platform references](../ACTION-ENGINE-AUDIT.md)
-- [Actual build/test/lint reports](../verification/actions-7/)
+- [Current fixes and evidence](../RELIABILITY-71-REPORT.md)
+- [Updated setup, exact ADB commands and device checklist](../RELIABILITY-71-GUIDE.md)
+- [Source/PR audit](../RELIABILITY-71-AUDIT.md)
+- [Actual build/test/lint logs](../verification/reliability-71/)
 
-VersionCode 10 / 7.0-actions / com.raaz.assistant. Matching previous workspace development signing certificate; private signing key excluded. Actual final clean-build, JVM and lint counts are recorded in verification/actions-7/summary.json.
+App versionCode 11 / 7.1-reliability / com.raaz.assistant. App and test APK share the previous workspace development certificate; private key excluded. Instrumentation package com.raaz.assistant.test targets the app through androidx.test.runner.AndroidJUnitRunner. Compilation is not instrumentation execution.
 
-This build adds real first-run setup, explicit permissions, typed Android actions, durable approvals, native Gemini tool outcomes and Control Center. Native Google voice, Home/session, existing profiles/encrypted keys, local history/memory, SSE, camera, MCP and opt-in wake remain intact. No universal phone control or production-readiness claim. Android instrumentation, physical audio/actions and genuine Gemini/external account tests are NOT TESTED in this workspace.
+PR #2 (7.0) was still open at inspection. This 7.1 update is a separate stacked pull request against its branch; main is not overwritten. Links resolve to the branch/commit being viewed. Current exact counts/results are in verification/reliability-71/summary.json.
 
-Links resolve to the branch/commit being viewed. The 7.0 update is submitted on feat/mobile-action-engine-7 for PR review; main remains on its previous version until merged. The complete source archive excludes build caches, private configuration/keys and recursive download artifacts; it includes Gradle wrapper, source/resources, tests, retained backend and evidence. Gradle resolves third-party dependencies during import/build.
+No phone/emulator, KVM device, legitimate Gemini/Picovoice credential or external account was available. No real calls/messages were sent. No complete production readiness or universal phone-control claim. The source archive contains the project, wrapper, tests, backend and evidence; Gradle resolves dependencies. It excludes private configuration/keys, caches and recursive APK/ZIP downloads.

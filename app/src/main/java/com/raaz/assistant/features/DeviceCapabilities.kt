@@ -19,7 +19,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.raaz.assistant.background.*
 
-data class CapabilitySnapshot(val microphone:Boolean=false,val contacts:Boolean=false,val notifications:Boolean=false,val assistant:Boolean?=null,val accessibility:Boolean=false,val network:String="Not checked",val battery:Int?=null,val charging:Boolean?=null,val sdk:Int=Build.VERSION.SDK_INT)
+data class CapabilitySnapshot(val microphone:Boolean=false,val contacts:Boolean=false,val notifications:Boolean=false,val assistant:Boolean?=null,val accessibility:Boolean=false,val network:String="Not checked",val battery:Int?=null,val charging:Boolean?=null,val sdk:Int=Build.VERSION.SDK_INT,val wakeNotificationVisible:Boolean=false)
 fun capabilitySnapshot(context:Context):CapabilitySnapshot {
  fun granted(p:String)=ContextCompat.checkSelfPermission(context,p)==PackageManager.PERMISSION_GRANTED
  val battery=context.registerReceiver(null,IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -32,9 +32,16 @@ fun capabilitySnapshot(context:Context):CapabilitySnapshot {
  val component=ComponentName(context,ScopedAutomationService::class.java)
  val accessibility=Settings.Secure.getString(context.contentResolver,Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES).orEmpty().split(':').any{ComponentName.unflattenFromString(it)==component}
  val assistant=if(Build.VERSION.SDK_INT>=29){val role=context.getSystemService(RoleManager::class.java);role.isRoleAvailable(RoleManager.ROLE_ASSISTANT)&&role.isRoleHeld(RoleManager.ROLE_ASSISTANT)}else null
- return CapabilitySnapshot(granted(Manifest.permission.RECORD_AUDIO),granted(Manifest.permission.READ_CONTACTS),NotificationManagerCompat.from(context).areNotificationsEnabled()&&(Build.VERSION.SDK_INT<33||granted(Manifest.permission.POST_NOTIFICATIONS)),assistant,accessibility,net,percent,charge)
+ return CapabilitySnapshot(granted(Manifest.permission.RECORD_AUDIO),granted(Manifest.permission.READ_CONTACTS),NotificationManagerCompat.from(context).areNotificationsEnabled()&&(Build.VERSION.SDK_INT<33||granted(Manifest.permission.POST_NOTIFICATIONS)),assistant,accessibility,net,percent,charge,wakeNotificationVisible=backgroundNotificationVisible(context))
 }
 fun assistantSetupIntent(activity:Activity):Intent {
  if(Build.VERSION.SDK_INT>=29){val role=activity.getSystemService(RoleManager::class.java);if(role.isRoleAvailable(RoleManager.ROLE_ASSISTANT)&&!role.isRoleHeld(RoleManager.ROLE_ASSISTANT))return role.createRequestRoleIntent(RoleManager.ROLE_ASSISTANT)}
  return Intent(Settings.ACTION_VOICE_INPUT_SETTINGS)
+}
+
+/** Includes the channel's actual visibility; runtime POST_NOTIFICATIONS alone is insufficient. */
+fun backgroundNotificationVisible(context:Context):Boolean {
+ if(!NotificationManagerCompat.from(context).areNotificationsEnabled())return false
+ if(Build.VERSION.SDK_INT>=33&&ContextCompat.checkSelfPermission(context,Manifest.permission.POST_NOTIFICATIONS)!=PackageManager.PERMISSION_GRANTED)return false
+ return Build.VERSION.SDK_INT<26||(context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).getNotificationChannel(BackgroundAssistantService.CHANNEL)?.importance!=NotificationManager.IMPORTANCE_NONE
 }

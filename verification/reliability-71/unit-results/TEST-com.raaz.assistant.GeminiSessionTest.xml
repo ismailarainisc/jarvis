@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiSessionTest" tests="37" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:44" hostname="2489d07eb512" time="1.095">
+  <properties/>
+  <testcase name="revokedPermissionIsDetectedWithoutMoreInput" classname="com.raaz.assistant.GeminiSessionTest" time="0.277"/>
+  <testcase name="nativeCaptureFailureReleasesPlatformAndSocket" classname="com.raaz.assistant.GeminiSessionTest" time="0.011"/>
+  <testcase name="cancellationBeforeDelayedFunctionCallCannotRecreateApproval" classname="com.raaz.assistant.GeminiSessionTest" time="0.067"/>
+  <testcase name="routeSelectionUsesActivePlatformAndStopsOnFailure" classname="com.raaz.assistant.GeminiSessionTest" time="0.013"/>
+  <testcase name="duplicateFunctionIdsCannotCreateAnotherProposal" classname="com.raaz.assistant.GeminiSessionTest" time="0.022"/>
+  <testcase name="malformedMessagesFailSafelyAndStopCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.015"/>
+  <testcase name="muteUnmuteRejectsFramesReadAcrossBothTransitions" classname="com.raaz.assistant.GeminiSessionTest" time="0.05"/>
+  <testcase name="largeQueuedInputStopsRatherThanPretendingToMute" classname="com.raaz.assistant.GeminiSessionTest" time="0.01"/>
+  <testcase name="stopCancelsPendingToolWorkerAndRejectsLateResult" classname="com.raaz.assistant.GeminiSessionTest" time="0.022"/>
+  <testcase name="focusLossCancelsNetworkAndReleasesResources" classname="com.raaz.assistant.GeminiSessionTest" time="0.012"/>
+  <testcase name="muteDuringConnectionDoesNotSendControlData" classname="com.raaz.assistant.GeminiSessionTest" time="0.004"/>
+  <testcase name="oldAudioInSameInterruptionMessageIsNotQueued" classname="com.raaz.assistant.GeminiSessionTest" time="0.05"/>
+  <testcase name="permissionDeniedDoesNotConnectOrCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.012"/>
+  <testcase name="interruptionInvalidatesPlaybackCallbacksAndKeepsSession" classname="com.raaz.assistant.GeminiSessionTest" time="0.039"/>
+  <testcase name="providerToolCallOnlyAcknowledgesPendingApproval" classname="com.raaz.assistant.GeminiSessionTest" time="0.047"/>
+  <testcase name="boundedInboxRejectsUnprocessedFlood" classname="com.raaz.assistant.GeminiSessionTest" time="0.022"/>
+  <testcase name="setupTimeoutDoesNotRetryBillableSession" classname="com.raaz.assistant.GeminiSessionTest" time="0.081"/>
+  <testcase name="genuineReadinessStartsExactlyOneAudioEngine" classname="com.raaz.assistant.GeminiSessionTest" time="0.011"/>
+  <testcase name="backgroundDuringSetupNeverStartsCapture" classname="com.raaz.assistant.GeminiSessionTest" time="0.01"/>
+  <testcase name="inputAndOutputStatesDoNotInventProcessing" classname="com.raaz.assistant.GeminiSessionTest" time="0.01"/>
+  <testcase name="providerCancellationIsForwardedWithoutExecutingAction" classname="com.raaz.assistant.GeminiSessionTest" time="0.01"/>
+  <testcase name="disconnectedSocketRequiresManualRestart" classname="com.raaz.assistant.GeminiSessionTest" time="0.035"/>
+  <testcase name="processingRequiresProviderEvidence" classname="com.raaz.assistant.GeminiSessionTest" time="0.007"/>
+  <testcase name="approvalWaitDoesNotBlockIncomingAudioOrTranscripts" classname="com.raaz.assistant.GeminiSessionTest" time="0.008"/>
+  <testcase name="sequentialModelResponseDoesNotClaimAsyncScheduling" classname="com.raaz.assistant.GeminiSessionTest" time="0.007"/>
+  <testcase name="goAwayHonorsServerGracePeriod" classname="com.raaz.assistant.GeminiSessionTest" time="0.007"/>
+  <testcase name="providerCancellationCannotLaterSpeakACompletedToolResult" classname="com.raaz.assistant.GeminiSessionTest" time="0.006"/>
+  <testcase name="repeatedStartStopReleasesEverySessionOnce" classname="com.raaz.assistant.GeminiSessionTest" time="0.006"/>
+  <testcase name="duplicateFailuresCannotDoubleClose" classname="com.raaz.assistant.GeminiSessionTest" time="0.003"/>
+  <testcase name="stopWhileAudioStartsWaitsForCleanupAndBlocksRestart" classname="com.raaz.assistant.GeminiSessionTest" time="0.004"/>
+  <testcase name="stopBeforeReadinessRejectsOldCallbacks" classname="com.raaz.assistant.GeminiSessionTest" time="0.003"/>
+  <testcase name="invalidConfigurationDoesNotAcquireAudioOrConnect" classname="com.raaz.assistant.GeminiSessionTest" time="0.002"/>
+  <testcase name="failedCleanupQuarantinesAudioOwnership" classname="com.raaz.assistant.GeminiSessionTest" time="0.004"/>
+  <testcase name="staleSessionCannotChangeNewConnection" classname="com.raaz.assistant.GeminiSessionTest" time="0.037"/>
+  <testcase name="staleToolRequestsAreRejectedAfterStop" classname="com.raaz.assistant.GeminiSessionTest" time="0.018"/>
+  <testcase name="nativeToolApprovalRunnerAndReceivedAudioWorkThroughProductionPipeline" classname="com.raaz.assistant.GeminiSessionTest" time="0.104"/>
+  <testcase name="nativeSetupAdvertisesOnlyConfiguredDeclarations" classname="com.raaz.assistant.GeminiSessionTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

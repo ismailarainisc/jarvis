@@ -1,10 +1,13 @@
-# JARVIS 7.0 — real Android action engine
+# JARVIS 7.1 — action and voice reliability
 
 Existing Android app, package **com.raaz.assistant**. Native voice uses **Gemini Live**; the optional wake engine uses **Porcupine** with a separately supplied user AccessKey. No Google/Picovoice/OpenAI credential is embedded.
 
 - [Download Android development APK](downloads/Jarvis-Gemini-Live.apk?raw=true)
 - [Download complete Android Studio source ZIP](downloads/Jarvis-Gemini-Live-Source.zip?raw=true)
-- [Current 7.0 action engine implementation/evidence](ACTION-ENGINE-REPORT.md)
+- [Current 7.1 fixes, regression evidence and limits](RELIABILITY-71-REPORT.md)
+- [7.1 setup and exact ADB/device checklist](RELIABILITY-71-GUIDE.md)
+- [7.1 actual source/PR audit](RELIABILITY-71-AUDIT.md)
+- [7.0 action engine implementation/evidence](ACTION-ENGINE-REPORT.md)
 - [7.0 setup, capabilities and device checklist](ACTION-ENGINE-GUIDE.md)
 - [7.0 source audit and official references](ACTION-ENGINE-AUDIT.md)
 - [Preserved 6.1 Home/native voice evidence](HOME-VOICE-REPORT.md)
@@ -13,9 +16,12 @@ Existing Android app, package **com.raaz.assistant**. Native voice uses **Gemini
 - [Preserved assistant features and historical verification](ASSISTANT-VERIFICATION.md)
 - [Setup, privacy and real-device checklist](ASSISTANT-GUIDE.md)
 - [Source audit and protocol references](ASSISTANT-AUDIT.md)
-- [Current build logs and tests](verification/actions-7/)
+- [Current build logs and tests](verification/reliability-71/)
 
 ## What is implemented
+
+7.1 adds a revisitable Permissions & readiness page, current notification-channel checks, explicit selected-recipient voice previews, stale-contact protection, cold fallback TTS readiness, bounded action execution and MCP body cancellation. See the current report for actual verification limits.
+
 
 First launch opens a resumable 11-step setup wizard. Every optional capability can be skipped and rechecked; no blanket startup grants or recording occur. Revisit from Settings → Revisit setup & permissions.
 
@@ -74,4 +80,4 @@ npm test
 
 The downloadable APK is a development build signed with the previous workspace development certificate. Private signing keys are excluded. A local rebuild normally uses another certificate; use a matching key for in-place upgrades. Do not uninstall to work around a signing mismatch if you need local data.
 
-Current 7.0 evidence is in ACTION-ENGINE-REPORT.md and verification/actions-7/. This feature branch is intended for pull-request review; main is not overwritten. Earlier Home/assistant/reliability documents/results are historical snapshots. Isolated passing tests and compiled instrumentation do not prove Android hardware, Google/Picovoice access, external MCP servers, live calls, app intents, battery or accessibility behavior. No real calls/messages are sent during development tests. See the actual report before treating this as production-ready.
+Current 7.1 evidence is in RELIABILITY-71-REPORT.md and verification/reliability-71/. PR #2 remained open at inspection, so 7.1 is stacked on its 7.0 branch for isolated review; main is not overwritten. Earlier Home/assistant/reliability documents/results are historical snapshots. Isolated passing tests and compiled instrumentation do not prove Android hardware, Google/Picovoice access, external MCP servers, live calls, app intents, battery or accessibility behavior. No real calls/messages are sent during development tests. See the actual report before treating this as production-ready.

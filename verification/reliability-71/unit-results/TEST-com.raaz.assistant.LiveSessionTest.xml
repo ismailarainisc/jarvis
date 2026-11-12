@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.LiveSessionTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:46" hostname="2489d07eb512" time="0.036">
+  <properties/>
+  <testcase name="stopAndRestartRejectStaleEvents" classname="com.raaz.assistant.LiveSessionTest" time="0.035"/>
+  <testcase name="startedBeforeTransportRemainsNegotiating" classname="com.raaz.assistant.LiveSessionTest" time="0.0"/>
+  <testcase name="sdpSuccessDoesNotImplyConnection" classname="com.raaz.assistant.LiveSessionTest" time="0.0"/>
+  <testcase name="connectedTransportIsNotSessionReady" classname="com.raaz.assistant.LiveSessionTest" time="0.0"/>
+  <testcase name="sessionMismatchRejected" classname="com.raaz.assistant.LiveSessionTest" time="0.0"/>
+  <testcase name="matchingRealEventsEnableReadiness" classname="com.raaz.assistant.LiveSessionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

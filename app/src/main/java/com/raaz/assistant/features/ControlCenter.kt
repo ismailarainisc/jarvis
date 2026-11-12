@@ -51,6 +51,7 @@ import org.json.JSONObject
   ControlTile("MCP servers",Icons.Default.Hub,{open("MCP")},Modifier.weight(1f))
   ControlTile("Wake & background",Icons.Default.Hearing,{open("Background")},Modifier.weight(1f))
  }
+ OutlinedButton(onClick={open("Permissions")},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Permissions & troubleshooting")}
  Button(onClick={vm.propose(activity,ToolAction("device_status",JSONObject()))},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)){Text("Prepare device-status task")}
  Text("Pending review: ${s.tasks.count{it.status in pendingTaskStates}} · executing: ${s.tasks.count{it.status==TaskStatus.EXECUTING}}",style=MaterialTheme.typography.labelLarge)
  Text("No hidden recording, arbitrary clicks, automatic WhatsApp/SMS sending, automatic permission approval, lock bypass or universal phone control. Permissions and per-app scopes remain revocable.",style=MaterialTheme.typography.bodySmall)

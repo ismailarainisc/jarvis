@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.ProviderCoreTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-12T14:11:48" hostname="2489d07eb512" time="0.0">
+  <properties/>
+  <testcase name="sseAccumulatesDataUntilBlankLine" classname="com.raaz.assistant.ProviderCoreTest" time="0.0"/>
+  <testcase name="endpointDisallowsCredentialsAndQuery" classname="com.raaz.assistant.ProviderCoreTest" time="0.0"/>
+  <testcase name="errorStatusDoesNotInventSpecificQuotaReason" classname="com.raaz.assistant.ProviderCoreTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

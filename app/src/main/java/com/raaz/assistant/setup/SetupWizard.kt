@@ -84,6 +84,7 @@ import com.raaz.assistant.gemini.GeminiLiveController
      CapabilityLine("Microphone",c?.microphone);CapabilityLine("Contacts",c?.contacts);CapabilityLine("Notifications",c?.notifications);CapabilityLine("Assistant role",c?.assistant);CapabilityLine("Accessibility",c?.accessibility)
      Text("Battery: ${c?.battery?.let{"$it%"}?:"Not available"}\nNetwork: ${c?.network?:"Not checked"}\nGoogle configuration: ${if(configuration.configured)"credential saved; live connection not tested here" else "not configured"}")
      OutlinedButton(onClick=onVoiceTest){Text("Open native voice test controls")}
+     PermissionCenter(activity)
      Text("Test START/STOP yourself with legitimate credentials. Every tool proposal still needs separate review in Tasks.")
     }
     SetupStep.COMPLETE->Text("Your choices remain revocable. Home is ready even if optional permissions or AI setup were skipped. Missing capabilities show setup guidance; no permission is granted by finishing this wizard.")

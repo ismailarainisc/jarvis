@@ -12,7 +12,7 @@ interface BackgroundVoice {fun start();suspend fun stop()}
 enum class WakePhase { STOPPED, ARMING, ARMED, HANDOFF, CONVERSATION, PAUSING, PAUSED, ERROR }
 data class WakeState(val phase:WakePhase=WakePhase.STOPPED,val message:String="Stopped")
 /** Serializes the actual service's recorder-to-Gemini handoff; late detector callbacks never reopen input. */
-class WakeSession(private val scope:CoroutineScope,private val factory:WakeFactory,private val voice:BackgroundVoice,private val allowed:()->Boolean) {
+class WakeSession(private val scope:CoroutineScope,private val factory:WakeFactory,private val voice:BackgroundVoice,private val allowed:()->Boolean,private val initializationTimeoutMs:Long=10000) {
  private val lock=Mutex();private var epoch=0L;private var capture:WakeCapture?=null;private var faulted=false
  private val mutable=MutableStateFlow(WakeState());val state=mutable.asStateFlow()
  fun arm(){val token=++epoch;capture?.requestStop();scope.launch{lock.withLock{
@@ -21,10 +21,10 @@ class WakeSession(private val scope:CoroutineScope,private val factory:WakeFacto
   if(token!=epoch)return@withLock
   if(!allowed()){mutable.value=WakeState(WakePhase.ERROR,"Open the app, grant permissions and explicitly enable background mode.");return@withLock}
   mutable.value=WakeState(WakePhase.ARMING,"Initializing local wake detector")
-  try{val next=factory.create();capture=next;next.start({scope.launch{wake(token)}},{scope.launch{if(token==epoch)pause(error=true)}})
+  try{val next=factory.create();capture=next;withTimeout(initializationTimeoutMs){next.start({scope.launch{wake(token)}},{scope.launch{if(token==epoch)pause(error=true)}})}
    if(token!=epoch||!allowed()){closeCapture();return@withLock}
    mutable.value=WakeState(WakePhase.ARMED,"Listening locally for Jarvis; ambient audio is not sent to Gemini")
-  }catch(e:CancellationException){withContext(NonCancellable){closeCapture()};throw e}catch(e:Exception){closeCapture();mutable.value=WakeState(WakePhase.ERROR,"Wake detector failed. Check its access key, microphone, license and device audio. Resume manually.")}
+  }catch(e:TimeoutCancellationException){closeCapture();if(token==epoch)mutable.value=WakeState(WakePhase.ERROR,"Wake initialization timed out. Check the detector service/license and resume manually.")}catch(e:CancellationException){withContext(NonCancellable){closeCapture()};throw e}catch(e:Exception){closeCapture();mutable.value=WakeState(WakePhase.ERROR,"Wake detector failed. Check its access key, microphone, license and device audio. Resume manually.")}
  }}}
  private suspend fun wake(token:Long)=lock.withLock{
   if(token!=epoch||mutable.value.phase!=WakePhase.ARMED)return@withLock

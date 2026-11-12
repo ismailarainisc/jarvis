@@ -1,0 +1,26 @@
+# JARVIS 7.1 audit — actual 7.0 continuation
+
+Inspected latest main e4a33167c2c899dbdb01151c7e8871fc0bcf0813 and PR #2 (OPEN, MERGEABLE, head ebebb7be2ea519c1383f5e8f79431ea5f532c726). Main still contains 6.1; 7.0 has not been merged. The 7.1 branch starts from PR #2's actual head, not a rewrite of main. The new pull request is stacked onto feat/mobile-action-engine-7, so its diff isolates these fixes. No main overwrite/force push.
+
+GitHub connector reads failed with an internal MCP error; authenticated GitHub CLI inspection succeeded. Current cloud runtime reported no configured provider secrets; adb has no connected device, no emulator binary or KVM device was available. No Google/Picovoice credentials or authorized third-party action accounts were supplied.
+
+Reviewed native Gemini controller/session/audio/protocol/tool bridge, Home/fallback coordinator, background service/wake capture, setup and capability queries, Android tools/resolver, task ledger/executor, SQLite memory/retention, MCP transport/schema validation, and existing JVM/Android tests.
+
+Confirmed defects corrected:
+
+1. Rejected background starts called stopSelf without reliably clearing the global authorization reservation. Foreground voice could remain blocked. Authorization admission now revokes on rejection and uses the same service gate during cleanup.
+2. Background microphone disclosure checked POST_NOTIFICATIONS but not app-wide notification visibility or the microphone channel. Turning off the channel could leave capture running without the intended visible notification. Actual app/channel visibility now gates startup and is monitored during capture.
+3. Wake initialization had no coroutine deadline and could remain ARMING indefinitely. A bounded cooperative deadline closes the capture and reports ERROR; cancellation is checked before starting real AudioRecord after a slow native SDK initializer returns.
+4. Lazy fallback TTS received the first typed reply before its initialization callback and failed immediately. A bounded one-reply readiness gate waits for the real callback, handles failure/timeout, cancels on Stop/close and rejects late callbacks. It is never used for native Gemini output.
+5. Contact searches lacked request identity; late old searches could replace newer results, and pending reads could restore revoked data. Request tickets, cancellation and current permission checks now guard delivery. Real provider queries use CancellationSignal and a deadline; a null cursor is failure, not an invented empty address book.
+6. Contact identity compared raw phone formatting or merged separate contacts sharing a number. Formatting-only changes now preserve identity; distinct lookup IDs remain ambiguous. Communication revalidation propagates cancellation and distinguishes provider failure from denied permission.
+7. Common spoken app names did not resolve localized labels reliably. A small known-package alias set handles YouTube/Chrome/Google Maps; other ambiguous labels still require explicit selection and all targets are revalidated before launch.
+8. Native 'selected contact' commands had no actual selected-recipient binding. A user-chosen local recipient now persists separately from conversational memory, is displayed/clearable, resolves only on device, and still requires exact action preview and permission/contact revalidation. Selection never authorizes communication.
+9. Approval polling scanned/deserialized the full task history every 250ms. Actual production reads now use a single-ID SQLite query; regressions reject bulk scans.
+10. Preparation/execution lacked an overall deadline. Preparation expires before any side effect; interrupted execution records UNKNOWN_OUTCOME and cannot automatically replay. Existing per-request MCP limits and conservative cleanup remain.
+11. A provider cancellation received before a delayed function call could recreate a pending proposal. Cancelled IDs now remain bounded session tombstones; delayed/replayed calls cannot create work.
+12. MCP socket cancellation was attached only until response headers arrived. Blocking JSON/SSE body reads could outlive Stop. A structured cancellation guard now owns the Call until the body closes; a local stalled-body regression verifies cancellation after actual responseBodyStart.
+13. MCP response IDs and integer/schema constraints used lossy number conversion or ignored malformed keyword types. Exact decimal comparisons and strict supported-keyword shapes reject fractional IDs, rounded integers, malformed requirements/properties/extra-property rules and malformed limits.
+14. Permission troubleshooting was scattered and background notification readiness omitted its channel. A revisitable Permissions page and setup Verify panel now show actual grant/role/service/channel state, relevant individual requests, resume recheck, settings shortcuts and per-feature requirements, without granting access or replaying tasks automatically.
+
+No new voice engine, universal automation protocol, destructive database migration or credential format change. Official Android/MCP/Gemini protocol references from 7.0 remain applicable; this change preserves Google tool wire fields and fixes client cancellation/lifecycle behavior. Every claimed hardware/provider capability remains subject to actual device/account verification.

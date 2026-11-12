@@ -101,7 +101,8 @@ class GeminiSession(
    if(!valid(s))return
   }
   if(event.cancelledFunctions.isNotEmpty()){
-   event.cancelledFunctions.forEach{id->s.tools[id]?.cancel()}
+   event.cancelledFunctions.forEach{id->s.seenTools.add(id);s.tools[id]?.cancel()}
+   if(s.seenTools.size>100)throw GeminiFailure(GeminiErrorCode.BACKPRESSURE,"Tool cancellation limit reached; restart manually.")
    toolBridge?.cancel(s.owner,event.cancelledFunctions)
   }
   if(event.functions.isNotEmpty()){
