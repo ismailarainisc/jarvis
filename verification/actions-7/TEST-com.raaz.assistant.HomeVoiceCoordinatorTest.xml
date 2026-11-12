@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.HomeVoiceCoordinatorTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-11-12T12:36:39" hostname="2489d07eb512" time="0.244">
+  <properties/>
+  <testcase name="repeatedFallbackStartDoesNotRestartTheActiveRecognizer" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.012"/>
+  <testcase name="startWaitsForNativeCleanupBeforeFallback" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.03"/>
+  <testcase name="homeAndSettingsShareOneNativeSession" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.005"/>
+  <testcase name="repeatedStartStopDoesNotDuplicateSessions" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.003"/>
+  <testcase name="connectionErrorDoesNotAutomaticallyStartDeviceTts" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.006"/>
+  <testcase name="actualTypedFallbackSpeechHasAStopControl" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.002"/>
+  <testcase name="switchingAwayFromNativeWaitsForCleanup" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.003"/>
+  <testcase name="backgroundingRejectsPermissionAndReleasesVoice" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.007"/>
+  <testcase name="explicitFallbackSelectionPersistsAndUsesOnlyFallback" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.002"/>
+  <testcase name="closedCoordinatorCannotReactivateMicrophone" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.006"/>
+  <testcase name="homeStartDefaultsToNativeWithoutStartingFallback" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.006"/>
+  <testcase name="modeSwitchInvalidatesOldPermissionTicket" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.008"/>
+  <testcase name="nativePresentationCannotBeOverwrittenByFallbackStates" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.001"/>
+  <testcase name="muteOnlyTargetsActualReadyNativeSession" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.002"/>
+  <testcase name="backgroundServicePreventsAnotherForegroundOwner" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.007"/>
+  <testcase name="leavingVoiceWorkspaceRejectsDelayedPermission" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.042"/>
+  <testcase name="stopDuringCleanupCannotStartAnObsoleteEngine" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.004"/>
+  <testcase name="noKeyOpensSetupInsteadOfRoboticFallback" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.008"/>
+  <testcase name="grantedPermissionStartsExactlyOneNativeSession" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.001"/>
+  <testcase name="fallbackBackgroundingCancelsPendingChatAndTts" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.001"/>
+  <testcase name="microphoneDenialNeverStartsEitherEngine" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.03"/>
+  <testcase name="stopInvalidatesOutstandingPermissionResult" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.013"/>
+  <testcase name="nativeSelectionStopsFallbackAndSuppressesLateTts" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.041"/>
+  <testcase name="oldSettingsDoNotSilentlySelectFallback" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.0"/>
+  <testcase name="reconnectingIsOnlyReportedForActualFallbackRetry" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.0"/>
+  <testcase name="failedPreferenceWritePreservesThePriorMode" classname="com.raaz.assistant.HomeVoiceCoordinatorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

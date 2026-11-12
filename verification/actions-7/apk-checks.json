@@ -1,0 +1,9 @@
+{
+  "signature": "PASS",
+  "previous_certificate_match": "PASS",
+  "zipalign_16kb": "PASS",
+  "all_non_signature_entries_match_gradle_apk": 187,
+  "package": "com.raaz.assistant",
+  "versionCode": 10,
+  "versionName": "7.0-actions"
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.ToolPolicyTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-12T12:36:41" hostname="2489d07eb512" time="0.092">
+  <properties/>
+  <testcase name="credentialsCannotBeSavedAsMemory" classname="com.raaz.assistant.ToolPolicyTest" time="0.003"/>
+  <testcase name="duplicateAppNamesRequireExplicitPackageChoice" classname="com.raaz.assistant.ToolPolicyTest" time="0.002"/>
+  <testcase name="naturalChatIsNotSilentlyConvertedIntoActions" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="duplicateContactNamesOrMultipleNumbersRequireSelection" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="arbitraryToolsAndRawOversizedArgumentsAreRejected" classname="com.raaz.assistant.ToolPolicyTest" time="0.042"/>
+  <testcase name="whatsappRequiresExplicitCountryCode" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="dangerousSchemesAndEmbeddedCredentialsAreRejected" classname="com.raaz.assistant.ToolPolicyTest" time="0.0"/>
+  <testcase name="mcpConfigurationRejectsCredentialForwardingUrls" classname="com.raaz.assistant.ToolPolicyTest" time="0.0"/>
+  <testcase name="memoryContextIsRelevantBoundedAndSupportsUrdu" classname="com.raaz.assistant.ToolPolicyTest" time="0.024"/>
+  <testcase name="ussdAndControlCharactersAreNotPhoneNumbers" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="timeArgumentsCannotOverflowOrBeFractional" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="implicitMemoryRequiresBothConsentsAndNeverIncludesContacts" classname="com.raaz.assistant.ToolPolicyTest" time="0.0"/>
+  <testcase name="nativeDeclarationsOnlyExposeImplementedApprovedTools" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="accessibilityScopeExcludesSystemPermissionsAndPayments" classname="com.raaz.assistant.ToolPolicyTest" time="0.0"/>
+  <testcase name="callerCannotRewriteSerializedProposal" classname="com.raaz.assistant.ToolPolicyTest" time="0.001"/>
+  <testcase name="youtubeHostCannotBeSpoofed" classname="com.raaz.assistant.ToolPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

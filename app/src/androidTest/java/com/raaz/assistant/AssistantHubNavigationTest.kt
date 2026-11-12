@@ -9,10 +9,11 @@ import org.junit.Test
 class AssistantHubNavigationTest {
  @get:Rule val rule=createAndroidComposeRule<MainActivity>()
  @Test fun memoryToolsAndDiagnosticsHaveRealScreens(){
+  finishSetupForTest(rule)
   rule.onNodeWithTag("home-content").performScrollToNode(hasText("Tools & background"))
   rule.onNodeWithText("Tools & background").performClick()
   rule.onNodeWithText("Allow Gemini to propose tools (approval always required)").assertExists()
-  rule.onNodeWithText("Memory").performClick()
+  rule.onNodeWithTag("hub-tab-Memory").performClick()
   rule.onNodeWithContentDescription("Enable local personal memory").assertExists()
   rule.onNodeWithContentDescription("Back").performClick()
   rule.onNodeWithContentDescription("Settings").performClick()

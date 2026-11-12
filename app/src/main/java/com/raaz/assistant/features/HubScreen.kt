@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,21 +29,22 @@ import com.raaz.assistant.background.*
 import com.raaz.assistant.gemini.*
 import org.json.JSONObject
 
-@Composable fun HubScreen(vm:HubViewModel,initial:String="Tools",foregroundLive:GeminiLiveUi,onStartBackground:()->Unit,onStopAll:()->Unit){
+@Composable fun HubScreen(vm:HubViewModel,initial:String="Control",foregroundLive:GeminiLiveUi,onStartBackground:()->Unit,onStopAll:()->Unit){
  val activity=LocalContext.current as Activity;val state by vm.state.collectAsStateWithLifecycle()
  var tab by rememberSaveable(initial){mutableStateOf(initial)}
  DisposableEffect(vm){vm.visible(true);vm.loadApps(activity);onDispose{vm.visible(false)}}
  Column(Modifier.fillMaxSize()){
-  Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=8.dp)){listOf("Tools","Contacts","Memory","MCP","Tasks","Background","Diagnostics").forEach{label->FilterChip(selected=tab==label,onClick={tab=label},label={Text(label)},modifier=Modifier.padding(3.dp))}}
+  Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal=8.dp)){listOf("Control","Tools","Contacts","Memory","MCP","Tasks","Background","Diagnostics").forEach{label->FilterChip(selected=tab==label,onClick={tab=label},label={Text(label)},modifier=Modifier.padding(3.dp).testTag("hub-tab-$label"))}}
   Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
    Text(tab,style=MaterialTheme.typography.headlineSmall)
    state.error?.let{Text(it,color=MaterialTheme.colorScheme.error)};state.notice?.let{Text(it,style=MaterialTheme.typography.bodySmall)}
    when(tab){
+    "Control"->ControlCenter(vm,state,activity,foregroundLive,{tab=it})
     "Tools"->ToolsPanel(vm,state,activity,{tab="Tasks"})
     "Contacts"->ContactsPanel(vm,state,activity)
     "Memory"->MemoryPanel(vm,state)
     "MCP"->McpPanel(vm,state,activity)
-    "Tasks"->TasksPanel(vm,state,activity)
+    "Tasks"->TaskDashboard(vm,state,activity)
     "Background"->BackgroundPanel(vm,state,activity,onStartBackground,onStopAll)
     "Diagnostics"->DiagnosticsPanel(state,foregroundLive)
    }
@@ -52,23 +54,28 @@ import org.json.JSONObject
 }
 @Composable private fun FlagRow(label:String,checked:Boolean,change:(Boolean)->Unit){Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(label,modifier=Modifier.weight(1f).padding(end=8.dp));Switch(checked,onCheckedChange=change,modifier=Modifier.semantics{contentDescription=label})}}
 @Composable private fun ToolsPanel(vm:HubViewModel,s:HubState,a:Activity,tasks:()->Unit){
- var query by rememberSaveable{mutableStateOf("")};var url by rememberSaveable{mutableStateOf("")};var seconds by rememberSaveable{mutableStateOf("60")};var hour by rememberSaveable{mutableStateOf("8")};var minute by rememberSaveable{mutableStateOf("0")}
+ var destination by rememberSaveable{mutableStateOf("")};var query by rememberSaveable{mutableStateOf("")};var url by rememberSaveable{mutableStateOf("")};var seconds by rememberSaveable{mutableStateOf("60")};var hour by rememberSaveable{mutableStateOf("8")};var minute by rememberSaveable{mutableStateOf("0")}
  FlagRow("Allow Gemini to propose tools (approval always required)",s.flags["assistant_tools"]==true){vm.flag("assistant_tools",it)}
+ Text("Enable before START; changing declarations needs a fresh voice session. Disabling immediately revokes pending AI proposals.",style=MaterialTheme.typography.bodySmall)
  Text("Actions are prepared first. Review the destination and arguments in Tasks. Launching an app does not prove its final result.")
  OutlinedTextField(query,{query=it},label={Text("YouTube / web search")},modifier=Modifier.fillMaxWidth())
  Row(Modifier.horizontalScroll(rememberScrollState())){Button(onClick={vm.propose(a,ToolAction("youtube_search",JSONObject().put("query",query)))} ){Text("Prepare YouTube search")};TextButton(onClick={vm.propose(a,ToolAction("web_search",JSONObject().put("query",query)))}){Text("Web")}}
  OutlinedTextField(url,{url=it},label={Text("HTTPS link")},modifier=Modifier.fillMaxWidth());TextButton(onClick={vm.propose(a,ToolAction("open_url",JSONObject().put("url",url)))}){Text("Prepare opening link")}
  OutlinedTextField(seconds,{seconds=it},label={Text("Timer seconds (1–86400)")},modifier=Modifier.fillMaxWidth());TextButton(onClick={vm.propose(a,ToolAction("set_timer",JSONObject().put("seconds",seconds.toIntOrNull()?:0)))}){Text("Prepare timer")}
  Row{OutlinedTextField(hour,{hour=it},label={Text("Hour 0–23")},modifier=Modifier.weight(1f));OutlinedTextField(minute,{minute=it},label={Text("Minute 0–59")},modifier=Modifier.weight(1f))};TextButton(onClick={vm.propose(a,ToolAction("set_alarm",JSONObject().put("hour",hour.toIntOrNull()?:-1).put("minute",minute.toIntOrNull()?:-1)))}){Text("Prepare alarm")}
+ OutlinedTextField(destination,{destination=it},label={Text("Maps destination / place")},modifier=Modifier.fillMaxWidth())
+ OutlinedButton(onClick={vm.propose(a,ToolAction("maps_search",JSONObject().put("query",destination)))}){Text("Prepare maps search")}
+ OutlinedButton(onClick={vm.propose(a,ToolAction("navigate_maps",JSONObject().put("query",destination)))}){Text("Prepare directions")}
  Text("Installed launcher apps",style=MaterialTheme.typography.titleMedium)
  var filter by rememberSaveable{mutableStateOf("")};OutlinedTextField(filter,{filter=it},label={Text("Filter app names")},modifier=Modifier.fillMaxWidth())
+ TextButton(onClick={vm.propose(a,ToolAction("search_apps",JSONObject().put("query",filter)))}){Text("Prepare local app-search task")}
  s.apps.filter{it.label.contains(filter,true)}.take(30).forEach{app->OutlinedButton(onClick={vm.propose(a,ToolAction("open_app",JSONObject().put("app",app.label).put("package",app.packageName)))},modifier=Modifier.fillMaxWidth()){Text("Open ${app.label}")}}
  Text("Scoped accessibility navigation is optional. It only scrolls or goes Back in explicitly enabled YouTube/Chrome; it cannot send messages, click arbitrary controls or approve permissions.")
  for((pkg,label) in listOf("com.google.android.youtube" to "YouTube","com.android.chrome" to "Chrome")){
   FlagRow("Allow $label scroll / Back",s.flags["automation_$pkg"]==true){vm.flag("automation_$pkg",it)}
   Row(Modifier.horizontalScroll(rememberScrollState())){for(direction in listOf("forward","backward","back"))TextButton(onClick={vm.propose(a,ToolAction(if(direction=="back")"back_app" else "scroll_app",JSONObject().put("package",pkg).put("direction",direction)))}){Text("$label $direction")}}
  }
- Row(Modifier.horizontalScroll(rememberScrollState())){for(page in listOf("app","wifi","bluetooth","accessibility","assistant"))TextButton(onClick={vm.propose(a,ToolAction("open_settings",JSONObject().put("page",page)))}){Text("Open $page settings")}}
+ Row(Modifier.horizontalScroll(rememberScrollState())){for(page in listOf("app","wifi","bluetooth","accessibility","assistant","network","sound","location","notifications","battery"))TextButton(onClick={vm.propose(a,ToolAction("open_settings",JSONObject().put("page",page)))}){Text("Open $page settings")}}
  Button(onClick=tasks){Text("Review prepared tasks (${s.tasks.count{it.status==TaskStatus.NEEDS_APPROVAL}})")}
 }
 @Composable private fun ContactsPanel(vm:HubViewModel,s:HubState,a:Activity){
@@ -109,18 +116,6 @@ import org.json.JSONObject
  }}}
  Text("OAuth login, legacy HTTP+SSE transport, stdio, server-initiated sampling/elicitation and complex JSON Schema constructs are not supported. Public endpoints or manually configured bearer authentication are supported.",style=MaterialTheme.typography.bodySmall)
 }
-@Composable private fun TasksPanel(vm:HubViewModel,s:HubState,a:Activity){
- var review by remember{mutableStateOf<AgentTask?>(null)};var clear by remember{mutableStateOf(false)}
- TextButton(onClick={clear=true}){Text("Clear finished task records")}
- if(clear)AlertDialog(onDismissRequest={clear=false},title={Text("Remove finished task records?")},text={Text("This deletes locally retained arguments and results for finished tasks. Pending and executing requests remain.")},confirmButton={TextButton(onClick={vm.clearFinishedTasks();clear=false}){Text("Clear finished")}},dismissButton={TextButton(onClick={clear=false}){Text("Cancel")}})
- Text("AI, webpages and MCP output cannot grant approval. Only an explicit action here can execute a proposal. Cancelled/interrupted actions are never retried automatically.")
- if(s.tasks.isEmpty())Text("No prepared or executed tasks.")
- s.tasks.forEach{task->Card(Modifier.fillMaxWidth()){Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(6.dp)){Text("${task.action.name} · ${task.status}",style=MaterialTheme.typography.titleSmall);Text("Source: ${task.source}",style=MaterialTheme.typography.bodySmall);SelectionContainer{Text(task.action.args.toString(2).take(16000))};Text(task.detail);Text(java.text.DateFormat.getDateTimeInstance().format(java.util.Date(task.created)),style=MaterialTheme.typography.bodySmall)
-  if(task.status==TaskStatus.NEEDS_APPROVAL)Button(enabled=!s.busy,onClick={review=task}){Text("Review and approve")}
-  if(task.status in setOf(TaskStatus.NEEDS_APPROVAL,TaskStatus.EXECUTING))TextButton(onClick={vm.cancel(task.id)}){Text("Cancel")}
- }}}
- review?.let{task->AlertDialog(onDismissRequest={review=null},title={Text("Approve ${task.action.name} once?")},text={Column(Modifier.verticalScroll(rememberScrollState())){Text("Check the destination, number/message or server tool. App launches may leave JARVIS. A direct call can place a real call; MCP tools may have external side effects.");Text(task.action.args.toString(2))}},confirmButton={TextButton(onClick={vm.approve(a,task.id);review=null}){Text("Approve once")}},dismissButton={TextButton(onClick={review=null}){Text("Cancel")}})}
-}
 @Composable private fun BackgroundPanel(vm:HubViewModel,s:HubState,a:Activity,start:()->Unit,stop:()->Unit){
  val wake by BackgroundRuntime.wake.collectAsStateWithLifecycle();val live by BackgroundRuntime.live.collectAsStateWithLifecycle();val running by BackgroundRuntime.running.collectAsStateWithLifecycle()
  var key by remember{mutableStateOf("")};var disclosure by remember{mutableStateOf(false)}
@@ -141,7 +136,7 @@ import org.json.JSONObject
 }
 @Composable private fun DiagnosticsPanel(s:HubState,live:GeminiLiveUi){
  val background by BackgroundRuntime.live.collectAsStateWithLifecycle();val running by BackgroundRuntime.running.collectAsStateWithLifecycle()
- Text("JARVIS 6.0 · com.raaz.assistant · API ${Build.VERSION.SDK_INT}")
+ Text("JARVIS 7.0-actions · com.raaz.assistant · API ${Build.VERSION.SDK_INT}")
  Text("Foreground: ${live.phase}; background service: $running; background Gemini: ${background.phase}")
  AssistantVisibility.diagnostic?.let{Text(it)}
  Text("Audio lease occupied: ${AudioOwnership.process.occupied()}; cleanup quarantined: ${AudioOwnership.process.failed()}")

@@ -31,34 +31,38 @@ import com.raaz.assistant.data.*
 import com.raaz.assistant.background.*
 import com.raaz.assistant.gemini.*
 import com.raaz.assistant.voice.*
+import com.raaz.assistant.setup.*
 
 private val Cyan=Color(0xFF59E7FF);private val Navy=Color(0xFF03111D);private val SurfaceBlue=Color(0xFF0A2132);private val Violet=Color(0xFFB59AFF)
-private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SETTINGS, ABOUT, LIVE, HUB }
+private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SETTINGS, ABOUT, LIVE, HUB, SETUP, BACKGROUND }
 @Composable fun JarvisApp(
  vm:AssistantViewModel,native:GeminiLiveUi,configuration:GeminiVoiceConfiguration,voice:HomeVoiceUi,
  onListen:()->Unit,onMode:(HomeVoiceMode)->Unit,onMute:()->Unit,onVoiceSurface:(Boolean)->Unit,setupRequest:Long,
  onCamera:()->Unit,onSend:(String)->Unit,onStop:()->Unit,onStopText:()->Unit,
+ setupContent:@Composable (()->Unit,()->Unit,()->Unit,()->Unit)->Unit={_,_,_,_->},
  liveContent:@Composable ()->Unit={},featureContent:@Composable (String)->Unit={},
  featureNotice:String?=null,pendingTasks:Int=0,initialFeature:String?=null
 ){
  val backgroundRunning by BackgroundRuntime.running.collectAsStateWithLifecycle();val backgroundLive by BackgroundRuntime.live.collectAsStateWithLifecycle();val wake by BackgroundRuntime.wake.collectAsStateWithLifecycle()
- val ui by vm.ui.collectAsStateWithLifecycle(); var pageName by rememberSaveable{mutableStateOf(Screen.HOME.name)};val page=Screen.valueOf(pageName);LaunchedEffect(initialFeature){if(initialFeature!=null)pageName=Screen.HUB.name};fun go(s:Screen){pageName=s.name}; BackHandler(page!=Screen.HOME){go(Screen.HOME)}
- LaunchedEffect(page){onVoiceSurface(page==Screen.HOME||page==Screen.LIVE)}
+ val appContext=LocalContext.current;val setup=remember(appContext){SetupProgress(AndroidSettingsStore(appContext))};val ui by vm.ui.collectAsStateWithLifecycle(); var pageName by rememberSaveable{mutableStateOf(if(setup.read().completed)Screen.HOME.name else Screen.SETUP.name)};val page=Screen.valueOf(pageName);LaunchedEffect(initialFeature){if(initialFeature!=null&&setup.read().completed)pageName=Screen.HUB.name};var setupReturn by rememberSaveable{mutableStateOf(false)};fun go(s:Screen){pageName=s.name};fun back(){if(setupReturn){setupReturn=false;go(Screen.SETUP)}else go(Screen.HOME)}; BackHandler(page!=Screen.HOME){back()}
+ LaunchedEffect(page){onVoiceSurface(foregroundVoiceWorkspace(page.name))}
  LaunchedEffect(setupRequest){if(setupRequest>0)go(Screen.LIVE)}
  DisposableEffect(Unit){onDispose{onVoiceSurface(false)}}
  val colors=if(ui.settings.dark) darkColorScheme(primary=Cyan,secondary=Violet,background=Navy,surface=SurfaceBlue) else lightColorScheme(primary=Color(0xFF006878),secondary=Color(0xFF644DA1))
- MaterialTheme(colorScheme=colors){Scaffold(topBar={JarvisTopBar(if(page==Screen.LIVE)"Voice settings" else  page.name.replace('_',' '),page!=Screen.HOME,{go(Screen.HOME)},{go(Screen.SETTINGS)},{go(Screen.HISTORY)})}){pad-> Column(Modifier.fillMaxSize().padding(pad).imePadding().navigationBarsPadding()){
+ MaterialTheme(colorScheme=colors){Scaffold(topBar={JarvisTopBar(if(page==Screen.LIVE)"Voice settings" else  page.name.replace('_',' '),page!=Screen.HOME,{back()},{go(Screen.SETTINGS)},{go(Screen.HISTORY)})}){pad-> Column(Modifier.fillMaxSize().padding(pad).imePadding().navigationBarsPadding()){
  if(featureNotice!=null||pendingTasks>0)Row(Modifier.fillMaxWidth().padding(horizontal=12.dp),verticalAlignment=Alignment.CenterVertically){Text(featureNotice?:"$pendingTasks task(s) need approval",maxLines=2,modifier=Modifier.weight(1f),style=MaterialTheme.typography.bodySmall);TextButton(onClick={go(Screen.TASKS)}){Text("Review")}}
  when(page){
+ Screen.SETUP -> setupContent({setupReturn=false;go(Screen.HOME)},{setupReturn=true;go(Screen.PROVIDERS)},{setupReturn=true;go(Screen.BACKGROUND)},{setupReturn=true;go(Screen.LIVE)})
+ Screen.BACKGROUND -> featureContent("Background")
  Screen.LIVE -> liveContent()
- Screen.HUB -> featureContent(initialFeature?:"Tools")
+ Screen.HUB -> featureContent(initialFeature?:"Control")
  Screen.HOME -> PremiumHomeScreen(ui,native,configuration,voice,backgroundRunning,backgroundLive,wake,
   onStart=onListen,onStop=onStop,onMute=onMute,onMode=onMode,onVoiceSettings={go(Screen.LIVE)},
   onHistory={go(Screen.HISTORY)},onTools={go(Screen.HUB)},onMemory={go(Screen.MEMORY)},onSettings={go(Screen.SETTINGS)},
   onCamera=onCamera,onRemovePhoto=vm::removePhoto,onSend=onSend,onStopText=onStopText)
  Screen.PROVIDERS -> Providers(ui,vm::saveProfile,vm::selectProfile,vm::removeProfile,vm::deleteKey,vm::testProvider)
  Screen.HISTORY -> History(ui.messages,vm::clearHistory)
- Screen.SETTINGS -> SettingsScreen(ui.settings,{vm.saveSettings(it,null)},{go(Screen.PROVIDERS)},{go(Screen.ABOUT)},{go(Screen.LIVE)})
+ Screen.SETTINGS -> SettingsScreen(ui.settings,{vm.saveSettings(it,null)},{go(Screen.PROVIDERS)},{go(Screen.ABOUT)},{go(Screen.LIVE)},{setup.revisit();go(Screen.SETUP)})
  Screen.MEMORY -> featureContent("Memory")
  Screen.CAMERA -> Column(Modifier.padding(20.dp)){Text("Camera & vision",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.height(12.dp));Text("Take a photo to attach to your next message. The selected model must support image input.");Spacer(Modifier.height(16.dp));Button(onClick=onCamera){Text("Take photo")};if(ui.imageAttached){Text("Photo attached");TextButton(onClick=vm::removePhoto){Text("Remove photo")}}}
  Screen.TASKS -> featureContent("Tasks")
@@ -107,5 +111,5 @@ private enum class Screen { HOME, HISTORY, MEMORY, PROVIDERS, CAMERA, TASKS, SET
  OutlinedTextField(name,{name=it},label={Text("Provider name")},modifier=Modifier.fillMaxWidth());OutlinedTextField(url,{url=it},label={Text("HTTPS chat completions URL")},modifier=Modifier.fillMaxWidth());OutlinedTextField(model,{model=it},label={Text("Model ID")},modifier=Modifier.fillMaxWidth());OutlinedTextField(key,{key=it},label={Text("API key (blank keeps existing)")},visualTransformation=PasswordVisualTransformation(),modifier=Modifier.fillMaxWidth());SettingsRow("Enable SSE streaming",stream){stream=it};ui.error?.let{ErrorState(it)}
  Button(onClick={save(editing,name,url,model,stream,key);key=""}){Text("Save and select")};TextButton(onClick={editing=null;name="";url="";model="";key="";stream=false}){Text("New provider")};OutlinedButton(onClick=test){Text("Test selected provider")};OutlinedButton(onClick=deleteKey){Text("Delete selected key")}
  }}
-@Composable private fun SettingsScreen(s:Settings,save:(Settings)->Unit,providers:()->Unit,about:()->Unit,voiceSettings:()->Unit){Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){Text("Preferences",style=MaterialTheme.typography.headlineSmall);SettingsRow("Dark appearance",s.dark){save(s.copy(dark=it))};SettingsRow("Spoken text replies (Android fallback only)",s.voice){save(s.copy(voice=it))};Text("Fallback speech language",style=MaterialTheme.typography.titleSmall);Row{listOf("System","English","Urdu").forEach{FilterChip(selected=s.language==it,onClick={save(s.copy(language=it))},label={Text(it)},modifier=Modifier.padding(end=4.dp))}};Text("Foreground voice stops when you leave it. Optional background wake mode must be explicitly enabled in Tools & background and uses a persistent notification.");Text("Manage local memory and its separate cloud-context consent from Home → Memory. Chat history remains local; clear it from History.");TextButton(onClick=voiceSettings){Text("Advanced voice settings")};TextButton(onClick=providers){Text("AI provider settings")};TextButton(onClick=about){Text("About & diagnostics")}}}
+@Composable private fun SettingsScreen(s:Settings,save:(Settings)->Unit,providers:()->Unit,about:()->Unit,voiceSettings:()->Unit,setup:()->Unit){Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){Text("Preferences",style=MaterialTheme.typography.headlineSmall);SettingsRow("Dark appearance",s.dark){save(s.copy(dark=it))};SettingsRow("Spoken text replies (Android fallback only)",s.voice){save(s.copy(voice=it))};Text("Fallback speech language",style=MaterialTheme.typography.titleSmall);Row{listOf("System","English","Urdu").forEach{FilterChip(selected=s.language==it,onClick={save(s.copy(language=it))},label={Text(it)},modifier=Modifier.padding(end=4.dp))}};Text("Foreground voice continues in Home, Voice settings and the approval/control workspace; other screens and backgrounding stop it. Optional background wake mode must be explicitly enabled in Tools & background and uses a persistent notification.");Text("Manage local memory and its separate cloud-context consent from Home → Memory. Chat history remains local; clear it from History.");TextButton(onClick=setup){Text("Revisit setup & permissions")};TextButton(onClick=voiceSettings){Text("Advanced voice settings")};TextButton(onClick=providers){Text("AI provider settings")};TextButton(onClick=about){Text("About & diagnostics")}}}
 @Composable private fun SettingsRow(label:String,checked:Boolean,onChange:(Boolean)->Unit){Row(Modifier.fillMaxWidth().heightIn(min=48.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.SpaceBetween){Text(label,modifier=Modifier.weight(1f).padding(end=12.dp));Switch(checked=checked,onCheckedChange=onChange)}}

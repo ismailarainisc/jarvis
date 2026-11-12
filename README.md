@@ -1,22 +1,32 @@
-# JARVIS 6.1 — unified native Gemini Home
+# JARVIS 7.0 — real Android action engine
 
 Existing Android app, package **com.raaz.assistant**. Native voice uses **Gemini Live**; the optional wake engine uses **Porcupine** with a separately supplied user AccessKey. No Google/Picovoice/OpenAI credential is embedded.
 
 - [Download Android development APK](downloads/Jarvis-Gemini-Live.apk?raw=true)
 - [Download complete Android Studio source ZIP](downloads/Jarvis-Gemini-Live-Source.zip?raw=true)
-- [Current Home/native voice implementation, changed files and evidence](HOME-VOICE-REPORT.md)
+- [Current 7.0 action engine implementation/evidence](ACTION-ENGINE-REPORT.md)
+- [7.0 setup, capabilities and device checklist](ACTION-ENGINE-GUIDE.md)
+- [7.0 source audit and official references](ACTION-ENGINE-AUDIT.md)
+- [Preserved 6.1 Home/native voice evidence](HOME-VOICE-REPORT.md)
 - [Native Home setup and real-device checklist](HOME-VOICE-GUIDE.md)
 - [Home voice audit](HOME-VOICE-AUDIT.md)
 - [Preserved assistant features and historical verification](ASSISTANT-VERIFICATION.md)
 - [Setup, privacy and real-device checklist](ASSISTANT-GUIDE.md)
 - [Source audit and protocol references](ASSISTANT-AUDIT.md)
-- [Build logs and tests](verification/assistant/)
+- [Current build logs and tests](verification/actions-7/)
 
 ## What is implemented
 
+First launch opens a resumable 11-step setup wizard. Every optional capability can be skipped and rechecked; no blanket startup grants or recording occur. Revisit from Settings → Revisit setup & permissions.
+
+Home → Tools & background opens the new Control Center. Enable Gemini tool proposals before START (restart an already connected voice session to advertise new declarations). Voice requests become validated durable tasks; unlock, inspect and approve once. Home, Voice settings, Tasks and Control Center share the foreground native session. Pending permission/consent revocation, duplicate/stale requests, bounded approval waits and unknown outcomes are handled explicitly. Private contact/memory query results stay local; approved battery/network snapshots may be spoken.
+
+New typed tools include local installed-app/Contacts search, actual device status, maps/directions and memory read/conditional deletion. LAUNCHED never proves external completion; VERIFIED is limited to checked local results. No autonomous arbitrary app clicking or automatic personal WhatsApp/SMS sending is implemented.
+
+
 **Home START defaults to native Gemini Live**, reusing the saved Google Live model/voice and the existing microphone/audio, continuous session, measured PCM and interruption implementation. Home and **Voice settings** share one foreground controller/session. **Voice mode → Android fallback** explicitly selects Android speech recognition → text API → TTS; it remains turn-based without full barge-in. Missing native configuration opens setup instead of silently using TTS. Typed replies in native mode remain text.
 
-**Home → Tools & background** opens functional tabs:
+**Control Center → Apps & actions / feature tabs** includes:
 - Tools: installed-app launch, YouTube/web search, supported HTTPS links, alarms/timers and narrow approved accessibility scroll/Back.
 - Contacts: optional local lookup, aliases, SIM dialer, separately enabled direct-call permission, SMS/WhatsApp composers.
 - Memory: local notes/preferences/aliases, correction/deletion and separate minimal cloud-context consent.
@@ -31,7 +41,7 @@ Enable **Allow Gemini to propose tools** to use documented Live function calls. 
 
 ## Configure voice
 
-Use your own Google AI Studio key and accessible **Live/audio** model/voice in Gemini Live settings. Default model `gemini-3.8-live`, voice `Kore`; Google availability and quotas apply. Saving does not test connectivity. Home ↔ Voice settings preserves the same foreground session. Other screens, Activity recreation and app backgrounding stop foreground voice; it never silently reactivates.
+Use your own Google AI Studio key and accessible **Live/audio** model/voice in Gemini Live settings. Default model `gemini-3.8-live`, voice `Kore`; Google availability and quotas apply. Saving does not test connectivity. Home ↔ Voice settings preserves the same foreground session. Tasks and Control Center also preserve the foreground session for approvals. Other screens, Activity recreation and app backgrounding stop foreground voice; it never silently reactivates.
 
 Background mode is separately disclosed and explicitly started while visible. It requires microphone/notification permissions, a configured Gemini key, your Picovoice AccessKey and applicable SDK license/activation. The built-in keyword is **Jarvis**, including in “Hi Jarvis”; no custom exact-phrase model or hardware DSP hotword access is claimed. Google receives no ambient audio while waiting for wake. After detection, a real configured Google session is requested. No automatic billable reconnection or sticky restart is used. Unlock/review is required for device actions. OEM restrictions apply; 24/7 reliability, free licensing and battery use are not guaranteed.
 
@@ -64,4 +74,4 @@ npm test
 
 The downloadable APK is a development build signed with the previous workspace development certificate. Private signing keys are excluded. A local rebuild normally uses another certificate; use a matching key for in-place upgrades. Do not uninstall to work around a signing mismatch if you need local data.
 
-Current Home evidence is in HOME-VOICE-REPORT.md and verification/home-voice/. This feature branch is intended for review through a pull request; main is not overwritten. Earlier assistant/reliability documents/results are historical snapshots. Isolated passing tests and compiled instrumentation do not prove Android hardware, Google/Picovoice access, external MCP servers, live calls, app intents, battery or accessibility behavior. No real calls/messages are sent during development tests. See the actual report before treating this as production-ready.
+Current 7.0 evidence is in ACTION-ENGINE-REPORT.md and verification/actions-7/. This feature branch is intended for pull-request review; main is not overwritten. Earlier Home/assistant/reliability documents/results are historical snapshots. Isolated passing tests and compiled instrumentation do not prove Android hardware, Google/Picovoice access, external MCP servers, live calls, app intents, battery or accessibility behavior. No real calls/messages are sent during development tests. See the actual report before treating this as production-ready.

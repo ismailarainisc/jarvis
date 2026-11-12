@@ -1,0 +1,22 @@
+{
+  "source": "https://generativelanguage.googleapis.com/$discovery/rest?version=v1beta",
+  "retrieved": "2026-11-12",
+  "evidence": "Public discovery schema, NOT an authenticated provider connectivity test",
+  "FunctionDeclaration.parametersJsonSchema": "Raw JSON Schema; mutually exclusive with enum-based parameters",
+  "FunctionDeclaration.behavior": [
+    "UNSPECIFIED",
+    "BLOCKING",
+    "NON_BLOCKING"
+  ],
+  "FunctionResponse.scheduling": {
+    "location": "top-level FunctionResponse field",
+    "values": [
+      "SCHEDULING_UNSPECIFIED",
+      "SILENT",
+      "WHEN_IDLE",
+      "INTERRUPT"
+    ],
+    "default": "WHEN_IDLE"
+  },
+  "implementation": "Registry JSON Schema is copied into parametersJsonSchema. Response scheduling is top-level and used only for documented async models."
+}

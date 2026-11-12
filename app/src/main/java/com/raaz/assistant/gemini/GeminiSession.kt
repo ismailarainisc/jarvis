@@ -29,6 +29,7 @@ class GeminiSession(
   var connection:GeminiConnection?=null;var platform:GeminiPlatform?=null;var audio:GeminiAudioSession?=null;var input:MicrophoneGate?=null
   var loop:Job?=null;var timeout:Job?=null;var monitor:Job?=null;var expiry:Job?=null
   var cleanupIssue=false;var setupSent=false;var outputGeneration=0L;var interrupted=false;var processing=false
+  val tools=mutableMapOf<String,Job>();val seenTools=mutableSetOf<String>();var asyncTools=false
   val inputDetector=AudioActivityDetector();val outputDetector=AudioActivityDetector()
  }
  private val mutable=MutableStateFlow(GeminiLiveUi());val state=mutable.asStateFlow()
@@ -41,7 +42,7 @@ class GeminiSession(
   val auth:GeminiSocketAuth;val setup:String
   try{auth=geminiSocketAuth(configuration.credential);setup=geminiSetup(configuration.model,configuration.voice)}catch(e:Exception){report(GeminiFailure(GeminiErrorCode.CONFIGURATION,"Enter a valid Google credential, Live model ID and supported voice."));return}
   try{beforeStart()}catch(e:Exception){report(GeminiFailure(GeminiErrorCode.AUDIO_BUSY,"Could not stop the previous voice operation."));return}
-  val s=Session("gemini-${UUID.randomUUID()}")
+  val s=Session("gemini-${UUID.randomUUID()}").also{it.asyncTools=geminiAsyncTools(configuration.model)}
   if(!ownership.acquire(s.owner)){report(GeminiFailure(GeminiErrorCode.AUDIO_BUSY,"Another voice operation is active or still closing. Wait for cleanup before starting."));return}
   current=s;mutable.value=GeminiLiveUi(phase=GeminiPhase.CONNECTING)
   try{
@@ -99,12 +100,26 @@ class GeminiSession(
    try{audio.start()}catch(e:CancellationException){throw e}catch(e:GeminiFailure){throw e}catch(e:Exception){throw GeminiFailure(GeminiErrorCode.CAPTURE,"Native microphone or playback initialization failed. Check device support and permission.")}
    if(!valid(s))return
   }
-  if(event.cancelledFunctions.isNotEmpty())toolBridge?.cancel(s.owner,event.cancelledFunctions)
+  if(event.cancelledFunctions.isNotEmpty()){
+   event.cancelledFunctions.forEach{id->s.tools[id]?.cancel()}
+   toolBridge?.cancel(s.owner,event.cancelledFunctions)
+  }
   if(event.functions.isNotEmpty()){
    if(!state.value.ready)throw GeminiFailure(GeminiErrorCode.PROTOCOL,"Tool call arrived before session readiness.")
-   val responses=org.json.JSONArray()
-   for(call in event.functions){val result=toolBridge?.propose(s.owner,call)?:org.json.JSONObject().put("status","unsupported");if(!valid(s))return;responses.put(org.json.JSONObject().put("id",call.id).put("name",call.name).put("response",result))}
-   if(s.connection?.send(org.json.JSONObject().put("toolResponse",org.json.JSONObject().put("functionResponses",responses)).toString())!=true)throw GeminiFailure(GeminiErrorCode.NETWORK,"Could not acknowledge tool proposals.")
+   for(call in event.functions){
+    if(!s.seenTools.add(call.id))continue
+    if(s.seenTools.size>100||s.tools.size>=8)throw GeminiFailure(GeminiErrorCode.BACKPRESSURE,"Too many tool requests. Review tasks and restart manually.")
+    val job=scope.launch(start=CoroutineStart.LAZY){
+     try {
+      val result=toolBridge?.propose(s.owner,call)?:org.json.JSONObject().put("status","unsupported")
+      if(valid(s))sendToolResult(s,call,result)
+     }catch(e:CancellationException){throw e}catch(e:Exception){
+      withContext(NonCancellable){try{toolBridge?.cancel(s.owner,listOf(call.id))}catch(cleanup:Exception){if(valid(s))terminate(s,GeminiFailure(GeminiErrorCode.CLEANUP,"Tool approval cleanup failed. Review pending tasks before retrying."))};Unit}
+      if(valid(s))sendToolResult(s,call,org.json.JSONObject().put("status","failed").put("message","Tool preparation/status failed. Review local Tasks; no success or retry is claimed."))
+     }finally{s.tools.remove(call.id)}
+    }
+    s.tools[call.id]=job;job.start()
+   }
   }
   if(event.goAway){
    update(s,state.value.copy(notice="Gemini announced that this session will expire. It will not reconnect or create a billable session automatically."))
@@ -130,6 +145,12 @@ class GeminiSession(
    s.interrupted=false;update(s,activity(s,state.value.copy(receivedBytes=state.value.receivedBytes+part.pcm.size)))
   }
  }
+ private fun sendToolResult(s:Session,call:GeminiFunctionCall,result:org.json.JSONObject){
+  if(!valid(s))return
+  val response=org.json.JSONObject().put("id",call.id).put("name",call.name).put("response",result)
+  if(s.asyncTools)response.put("scheduling","WHEN_IDLE")
+  if(s.connection?.send(org.json.JSONObject().put("toolResponse",org.json.JSONObject().put("functionResponses",org.json.JSONArray().put(response))).toString())!=true)terminate(s,GeminiFailure(GeminiErrorCode.NETWORK,"Could not return the actual tool outcome. Review Tasks before retrying."))
+ }
  private fun audioEvents(s:Session)=object:GeminiAudioSession.Events{
   override fun capture(active:Boolean)=post(s){if(!active)s.inputDetector.reset();update(s,activity(s,state.value.copy(capture=active,inputActive=if(active)state.value.inputActive else false,microphoneLevel=if(active)state.value.microphoneLevel else 0f)))}
   override fun microphone(level:AudioLevel)=post(s){if(!state.value.muted){val measured=s.inputDetector.update(level.rms,clock());if(measured)s.interrupted=false;update(s,activity(s,state.value.copy(microphoneLevel=level.display,microphoneSamples=state.value.microphoneSamples+1,inputActive=measured)))}}
@@ -145,12 +166,13 @@ class GeminiSession(
  fun stop(){current?.let{terminate(it,null)}}
  private fun terminate(s:Session,failure:GeminiFailure?){
   if(!valid(s))return
-  current=null;s.live.set(false);toolBridge?.finished(s.owner);s.input?.stop();s.timeout?.cancel();s.monitor?.cancel();s.expiry?.cancel();s.inbox.cancel();s.loop?.cancel()
+  current=null;s.live.set(false);val toolJobs=s.tools.values.toList();toolJobs.forEach{it.cancel()};s.input?.stop();s.timeout?.cancel();s.monitor?.cancel();s.expiry?.cancel();s.inbox.cancel();s.loop?.cancel()
   try{s.connection?.cancel()}catch(e:Exception){s.cleanupIssue=true};try{s.audio?.requestStop()}catch(e:Exception){s.cleanupIssue=true}
   mutable.value=state.value.copy(phase=GeminiPhase.DISCONNECTING,ready=false,muted=false,capture=false,playback=false,microphoneLevel=0f,outputLevel=0f,inputActive=false,outputActive=false,sentBytes=s.input?.bytesQueued()?:0,error=failure?.message,errorCode=failure?.code)
   closing=scope.launch {
    var clean=!s.cleanupIssue
    withContext(NonCancellable){
+    try{toolJobs.joinAll();toolBridge?.finished(s.owner)}catch(e:Exception){clean=false}
     try{if(s.audio?.close()==false)clean=false}catch(e:Exception){clean=false}
     try{if(s.platform?.release()==false)clean=false}catch(e:Exception){clean=false}
     if(clean)ownership.release(s.owner)else{cleanupBlocked=true;ownership.quarantine(s.owner)}

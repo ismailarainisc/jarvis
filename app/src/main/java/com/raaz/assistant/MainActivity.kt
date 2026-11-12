@@ -21,6 +21,7 @@ import com.raaz.assistant.features.*
 import com.raaz.assistant.gemini.*
 import com.raaz.assistant.ui.JarvisApp
 import com.raaz.assistant.voice.*
+import com.raaz.assistant.setup.SetupWizard
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -65,10 +66,11 @@ class MainActivity : ComponentActivity() {
      if(vm.ui.value.settings.voice&&coordinator.mayUseDeviceSpeech())fallbackEngine().speakOnce(answer)
     })},
     onStop=::stopAll,onStopText=vm::stop,
+    setupContent={done,providers,background,test->SetupWizard(live,done,providers,background,test)},
     liveContent={GeminiLiveScreen(live,voiceState,onStart={coordinator.select(HomeVoiceMode.GEMINI_LIVE);requestVoiceStart(microphone)},onStop=::stopAll,onMute=coordinator::mute,onSaved=coordinator::configurationUpdated,backgroundRunning=backgroundRunning)},
     featureContent={initial->HubScreen(hub,initial,nativeState,::startBackground,::stopAll)},
     featureNotice=featureState.error?:featureState.notice,
-    pendingTasks=featureState.tasks.count{it.status==TaskStatus.NEEDS_APPROVAL},initialFeature=featureEntry
+    pendingTasks=featureState.tasks.count{it.status in pendingTaskStates},initialFeature=featureEntry
    )
   }
  }
