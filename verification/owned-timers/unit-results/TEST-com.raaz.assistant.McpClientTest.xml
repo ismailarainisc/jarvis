@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.McpClientTest" tests="22" skipped="0" failures="0" errors="0" timestamp="2026-11-13T04:07:21" hostname="679e28cd6756" time="1.203">
+  <properties/>
+  <testcase name="cancellationAfterHeadersClosesStalledBody" classname="com.raaz.assistant.McpClientTest" time="0.08"/>
+  <testcase name="sseResponsesAreParsedByEventBoundaries" classname="com.raaz.assistant.McpClientTest" time="0.124"/>
+  <testcase name="revocationDuringDiscoveryPreventsActualToolCall" classname="com.raaz.assistant.McpClientTest" time="0.147"/>
+  <testcase name="mismatchedResponseIdFails" classname="com.raaz.assistant.McpClientTest" time="0.035"/>
+  <testcase name="invalidOptionalSchemaConstraintsCannotDisappear" classname="com.raaz.assistant.McpClientTest" time="0.002"/>
+  <testcase name="unsafeEndpointIsRejectedBeforeSending" classname="com.raaz.assistant.McpClientTest" time="0.012"/>
+  <testcase name="authenticationFailureBeforeToolCallHasExplicitStage" classname="com.raaz.assistant.McpClientTest" time="0.053"/>
+  <testcase name="fractionalResponseIdCannotMatchIntegerRequest" classname="com.raaz.assistant.McpClientTest" time="0.04"/>
+  <testcase name="disabledServerCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.005"/>
+  <testcase name="malformedSchemaKeywordsAreNotSilentlyIgnored" classname="com.raaz.assistant.McpClientTest" time="0.001"/>
+  <testcase name="numericSchemaDoesNotRoundFractionsOrBounds" classname="com.raaz.assistant.McpClientTest" time="0.001"/>
+  <testcase name="declaredToolErrorsAreNotSuccessfulResults" classname="com.raaz.assistant.McpClientTest" time="0.157"/>
+  <testcase name="approvedAllowedToolActuallyCallsServerOnce" classname="com.raaz.assistant.McpClientTest" time="0.123"/>
+  <testcase name="unapprovedToolCannotMakeRequests" classname="com.raaz.assistant.McpClientTest" time="0.011"/>
+  <testcase name="unsupportedArgumentsNeverReachToolCall" classname="com.raaz.assistant.McpClientTest" time="0.075"/>
+  <testcase name="nestedMalformedBoundsAreRejectedWithMatchingInputTypes" classname="com.raaz.assistant.McpClientTest" time="0.0"/>
+  <testcase name="serverFailureAfterToolDispatchCannotClaimNoExternalEffect" classname="com.raaz.assistant.McpClientTest" time="0.091"/>
+  <testcase name="cancelledRequestReleasesNonrespondingSocket" classname="com.raaz.assistant.McpClientTest" time="0.083"/>
+  <testcase name="realInitializeNotificationDiscoveryAndDelete" classname="com.raaz.assistant.McpClientTest" time="0.108"/>
+  <testcase name="schemaValidationIsConservative" classname="com.raaz.assistant.McpClientTest" time="0.001"/>
+  <testcase name="authenticationFailureNeverExposesResponseBody" classname="com.raaz.assistant.McpClientTest" time="0.02"/>
+  <testcase name="redirectsDoNotForwardCredentials" classname="com.raaz.assistant.McpClientTest" time="0.029"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[Nov 13, 2026 4:07:22 AM okhttp3.mockwebserver.MockWebServer$SocketHandler handle
+WARNING: MockWebServer[38709] connection from /127.0.0.1 didn't make a request
+]]></system-err>
+</testsuite>

@@ -113,6 +113,7 @@ import com.raaz.assistant.voice.*
       HologramWaveform(if(nativeAudio)audio else null,ui.microphoneLevel,!nativeAudio&&ui.voiceActive&&ui.state==AssistantState.LISTENING,cyan)
      }
     }
+    item {com.raaz.assistant.timer.TimerPanel()}
     if(error!=null) item {AssistantMessageCard("Needs attention",error,true)}
     if(nativeAudio&&ui.error!=null&&ui.error!=error) item {AssistantMessageCard("Text / camera",ui.error,true)}
     if(!background&&nativeMode&&!configuration.configured) item {

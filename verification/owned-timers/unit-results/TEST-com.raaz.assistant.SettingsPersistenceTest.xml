@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.SettingsPersistenceTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-13T04:07:23" hostname="679e28cd6756" time="0.022">
+  <properties/>
+  <testcase name="profilesKeysAndSelectionSurviveNewRepository" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.007"/>
+  <testcase name="corruptProfilesArePreservedRatherThanOverwritten" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.002"/>
+  <testcase name="geminiSettingsPersistWithoutChangingTextProvider" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="deletingLastLegacyProfileCannotResurrectSecret" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="keyRotationAndRemovalArePerProfile" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="missingCredentialGivesActionableError" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="customNativeVoiceIsNotSilentlyReplacedByAnExample" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.0"/>
+  <testcase name="homeAndSettingsKeepSelectedNativeVoiceAcrossRepositoryRestart" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.004"/>
+  <testcase name="failedEncryptionDoesNotChangeProfileOrKey" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <testcase name="legacyCredentialIsReadableWithoutDestructiveMigration" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.0"/>
+  <testcase name="changingDestinationRequiresExplicitNewCredential" classname="com.raaz.assistant.SettingsPersistenceTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

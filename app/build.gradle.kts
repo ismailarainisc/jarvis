@@ -2,7 +2,7 @@ plugins { id("com.android.application"); id("org.jetbrains.kotlin.android") }
 android {
     namespace = "com.raaz.assistant"
     compileSdk = 35
-    defaultConfig { applicationId = "com.raaz.assistant"; minSdk = 23; targetSdk = 35; versionCode = 12; versionName = "7.2-holographic-home"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
+    defaultConfig { applicationId = "com.raaz.assistant"; minSdk = 23; targetSdk = 35; versionCode = 13; versionName = "7.3-owned-timers"; testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" }
     buildFeatures { compose = true }
     composeOptions { kotlinCompilerExtensionVersion = "1.5.15" }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }

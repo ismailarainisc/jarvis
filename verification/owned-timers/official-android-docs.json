@@ -1,0 +1,29 @@
+[
+  {
+    "url": "https://developer.android.com/reference/android/provider/AlarmClock",
+    "retrieved": true,
+    "bytes": 2277665,
+    "relevant_terms": [
+      "EXTRA_SKIP_UI",
+      "EXTRA_LENGTH",
+      "SET_ALARM"
+    ]
+  },
+  {
+    "url": "https://developer.android.com/develop/background-work/services/alarms/schedule",
+    "retrieved": true,
+    "bytes": 341480,
+    "relevant_terms": [
+      "setExactAndAllowWhileIdle",
+      "SCHEDULE_EXACT_ALARM"
+    ]
+  },
+  {
+    "url": "https://developer.android.com/develop/ui/views/notifications/notification-permission",
+    "retrieved": true,
+    "bytes": 367018,
+    "relevant_terms": [
+      "POST_NOTIFICATIONS"
+    ]
+  }
+]

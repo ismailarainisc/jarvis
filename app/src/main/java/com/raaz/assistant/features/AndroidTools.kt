@@ -61,8 +61,9 @@ class AndroidTools(private val activity:Activity,private val store:FeatureStore,
    "youtube_open","open_url"->launch(Intent(Intent.ACTION_VIEW,Uri.parse(a.getString("url"))),"Link launch requested. Page load or playback was not verified.")
    "web_search"->launch(Intent(Intent.ACTION_VIEW,Uri.parse("https://www.google.com/search").buildUpon().appendQueryParameter("q",a.getString("query")).build()),"Browser search launch requested.")
    "open_settings"->{val page=a.getString("page");val intent=when(page){"app"->Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${activity.packageName}"));"wifi"->Intent(Settings.ACTION_WIFI_SETTINGS);"bluetooth"->Intent(Settings.ACTION_BLUETOOTH_SETTINGS);"accessibility"->Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);"network"->if(android.os.Build.VERSION.SDK_INT>=29)Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)else Intent(Settings.ACTION_WIRELESS_SETTINGS);"sound"->Intent(Settings.ACTION_SOUND_SETTINGS);"location"->Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);"notifications"->if(android.os.Build.VERSION.SDK_INT>=26)Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,activity.packageName)else Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:${activity.packageName}"));"battery"->Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);else->assistantSetupIntent(activity)};launch(intent,"Android settings launch requested.")}
-   "set_alarm"->launch(Intent(AlarmClock.ACTION_SET_ALARM).putExtra(AlarmClock.EXTRA_HOUR,a.getInt("hour")).putExtra(AlarmClock.EXTRA_MINUTES,a.getInt("minute")).putExtra(AlarmClock.EXTRA_SKIP_UI,false),"Alarm app opened for confirmation; alarm creation was not independently verified.")
-   "set_timer"->launch(Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH,a.getInt("seconds")).putExtra(AlarmClock.EXTRA_SKIP_UI,false),"Timer app opened for confirmation; timer creation was not independently verified.")
+   "set_alarm"->launch(Intent(AlarmClock.ACTION_SET_ALARM).putExtra(AlarmClock.EXTRA_HOUR,a.getInt("hour")).putExtra(AlarmClock.EXTRA_MINUTES,a.getInt("minute")).putExtra(AlarmClock.EXTRA_SKIP_UI,true),"Clock alarm request dispatched with skip-UI after approval; external alarm creation is not independently verified.")
+   "set_timer","timer_status","cancel_timer","stop_timer"->com.raaz.assistant.timer.AndroidTimers(activity).execute(action,java.util.UUID.randomUUID().toString())
+   "set_clock_timer"->launch(clockTimerIntent(a.getInt("seconds")),"Clock timer launch requested with skip-UI; external creation is not independently verified.")
    "dial","direct_call","sms_compose","whatsapp_compose"->{
     val phone=a.optString("phone");if(!validPhone(phone))return@withContext ToolOutcome(TaskStatus.FAILED,"Recipient needs to be resolved again.")
     val lookup=a.optString("lookup")
@@ -135,3 +136,5 @@ class ToolResolver(private val context:Context,private val store:FeatureStore) {
   return contactQuery(context.contentResolver,ContactsContract.CommonDataKinds.Phone.CONTENT_URI,arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),ContactsContract.CommonDataKinds.Phone.LOOKUP_KEY+"=?",arrayOf(lookup)){c->var found=false;while(c.moveToNext())if(samePhone(c.getString(0).orEmpty(),phone))found=true;found}
  }
 }
+
+fun clockTimerIntent(seconds:Int):Intent {require(seconds in 1..86400);return Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH,seconds).putExtra(AlarmClock.EXTRA_SKIP_UI,true)}

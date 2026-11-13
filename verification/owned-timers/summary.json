@@ -1,0 +1,21 @@
+{
+  "tests": 316,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "suites": 26,
+  "build": "PASS",
+  "command": "./gradlew clean assembleDebug testDebugUnitTest assembleDebugAndroidTest lintDebug",
+  "duration": "15m 24s",
+  "lint": {
+    "Error": 0,
+    "Fatal": 0,
+    "Warning": 3
+  },
+  "new_instrumentation_tests_compiled": 3,
+  "instrumentation_execution": "NOT TESTED",
+  "real_device": "NOT TESTED",
+  "live_provider": "NOT TESTED",
+  "actual_notification_delivery": "NOT TESTED",
+  "frozen_source_inputs_unchanged": true
+}

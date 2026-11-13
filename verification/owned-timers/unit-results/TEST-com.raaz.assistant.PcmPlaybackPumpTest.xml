@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.PcmPlaybackPumpTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-13T04:07:23" hostname="679e28cd6756" time="0.156">
+  <properties/>
+  <testcase name="interruptionDiscardsActiveAndQueuedChunks" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.009"/>
+  <testcase name="repeatedGenerationsDoNotResurrectOldAudio" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.001"/>
+  <testcase name="inFlightArrayStillCountsAgainstBufferLimit" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.0"/>
+  <testcase name="closeIsIdempotentAndRejectsFutureAudio" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.001"/>
+  <testcase name="invalidPcmAndChunkCountAreBounded" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.0"/>
+  <testcase name="oddOrNegativeOrOversizeWritesFail" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.001"/>
+  <testcase name="stalledWriteFailsBoundedly" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.002"/>
+  <testcase name="concurrentInvalidationUsesMonotonicApi23CompatibleCas" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.139"/>
+  <testcase name="stalledPlaybackHeadIsNotShownAsPlayingForever" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.001"/>
+  <testcase name="partialWritesPreservePcmInOrder" classname="com.raaz.assistant.PcmPlaybackPumpTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
