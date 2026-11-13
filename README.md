@@ -1,4 +1,8 @@
-# JARVIS 7.2 — Holographic Home
+# JARVIS 7.3 — real owned timers
+
+[Timer implementation, Android restrictions and device checklist](TIMERS-GUIDE.md). Voice timers use the existing Gemini session and require Assistant tools enabled. Timer alerts are approximate unless precise access was explicitly granted. Actual device/Gemini verification remains NOT TESTED.
+
+## Previous phase — JARVIS 7.2 — Holographic Home
 
 [Current Home design, implementation and verification](HOME-DESIGN-REPORT.md). The approved reference and actual reusable face artwork are included. Device/pixel-fidelity and live Google verification remain NOT TESTED.
 

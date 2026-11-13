@@ -18,7 +18,9 @@ interface GeminiToolBridge {
  fun preferences():String=""
 }
 class AndroidGeminiToolBridge(context:Context):GeminiToolBridge {
- private val store=FeatureStore(context.applicationContext)
+ private val timerMutex=kotlinx.coroutines.sync.Mutex()
+ private val contextApp=context.applicationContext
+ private val store=FeatureStore(contextApp)
  private val resolver=ToolResolver(context.applicationContext,store)
  private val requests=ApprovedToolRequests(store,resolver::prepare,{store.flag("assistant_tools")})
  override fun declarations():JSONArray {
@@ -28,7 +30,22 @@ class AndroidGeminiToolBridge(context:Context):GeminiToolBridge {
   return all
  }
  override fun preferences()=store.relevantContext("")
- override suspend fun propose(session:String,call:GeminiFunctionCall):JSONObject=withContext(Dispatchers.IO){requests.propose(session,call)}
+ override suspend fun propose(session:String,call:GeminiFunctionCall):JSONObject=withContext(Dispatchers.IO){
+  if(call.name !in com.raaz.assistant.timer.timerActions)return@withContext requests.propose(session,call)
+  if(!store.flag("assistant_tools"))return@withContext JSONObject().put("status","unsupported").put("message","Enable assistant tools first. No timer action executed.")
+  val action=ToolAction(call.name,call.args)
+  ToolRegistry.validateProvider(action)?.let{return@withContext JSONObject().put("status","unsupported").put("message",it)}
+  val id=java.security.MessageDigest.getInstance("SHA-256").digest((session+"/"+call.id).toByteArray()).joinToString(""){"%02x".format(it)}
+  timerMutex.lock()
+  try {
+  val saved=store.task(id)
+  if(saved!=null)return@withContext JSONObject().put("status",saved.status.name.lowercase()).put("timerResult",saved.detail)
+  val outcome=com.raaz.assistant.timer.AndroidTimers(contextApp).execute(action,id)
+  // Persist a real task result, without waiting for a foreground approval or stopping Live audio.
+  if(store.task(id)==null)store.insertTask(AgentTask(id=id,action=action,source="Gemini direct timer",status=outcome.status,detail=outcome.detail))
+  JSONObject().put("status",outcome.status.name.lowercase()).put("timerResult",outcome.detail)
+  }finally{timerMutex.unlock()}
+ }
  override suspend fun cancel(session:String,ids:List<String>)=withContext(Dispatchers.IO){requests.cancel(session,ids)}
  override fun close(){store.close()}
  override suspend fun finished(session:String)=withContext(Dispatchers.IO){requests.finished(session)}

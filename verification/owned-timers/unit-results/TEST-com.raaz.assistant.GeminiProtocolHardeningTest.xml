@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.GeminiProtocolHardeningTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-13T04:07:19" hostname="679e28cd6756" time="0.041">
+  <properties/>
+  <testcase name="incorrectlyTypedFieldsFailTruthfully" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.003"/>
+  <testcase name="invalidAuthCannotInjectHeadersOrUrl" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.001"/>
+  <testcase name="mimeMustBeExactPcmAndNegotiatedRate" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.009"/>
+  <testcase name="pcmRejectsOddNoncanonicalAndMalformedBase64" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.001"/>
+  <testcase name="goAwayCarriesRealGracePeriod" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.008"/>
+  <testcase name="eventAndPcmBoundsAreEnforced" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.011"/>
+  <testcase name="providerBodyAndCredentialNeverAppearInErrors" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.002"/>
+  <testcase name="modelPrefixIsNormalizedAfterWhitespace" classname="com.raaz.assistant.GeminiProtocolHardeningTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

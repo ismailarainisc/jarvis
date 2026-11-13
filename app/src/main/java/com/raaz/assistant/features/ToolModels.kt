@@ -26,7 +26,7 @@ fun safeMemory(label:String,value:String):Boolean {
  return label.isNotBlank()&&label.length<=120&&value.isNotBlank()&&value.length<=2000&&!Regex("(?i)(api[ _-]?key|password|secret|bearer |auth_tokens/|AIza[\\w-]{20}|sk-(?:proj-)?[\\w-]{20})").containsMatchIn(all)
 }
 object ToolRegistry {
- val names=setOf("search_apps","find_contacts","device_status","maps_search","navigate_maps","read_memory","delete_memory","open_app","youtube_search","youtube_open","web_search","open_url","open_settings","set_alarm","set_timer","dial","direct_call","sms_compose","whatsapp_compose","save_memory","mcp_call","scroll_app","back_app")
+ val names=setOf("search_apps","find_contacts","device_status","maps_search","navigate_maps","read_memory","delete_memory","open_app","youtube_search","youtube_open","web_search","open_url","open_settings","set_alarm","set_timer","set_clock_timer","timer_status","cancel_timer","stop_timer","dial","direct_call","sms_compose","whatsapp_compose","save_memory","mcp_call","scroll_app","back_app")
  fun validate(action:ToolAction):String?=try{
   require(action.name in names){"Unsupported tool."};val a=action.args;require(a.toString().length<=16000){"Arguments are too large."}
   fun text(key:String,max:Int=500):String{val v=a.opt(key) as? String?:error("Missing $key.");require(v.isNotBlank()&&v.length<=max){"Invalid $key."};return v}
@@ -37,7 +37,7 @@ object ToolRegistry {
   }
   when(action.name){
    "search_apps","find_contacts","maps_search","navigate_maps"->text("query",200)
-   "device_status"->require(a.length()==0){"Device status accepts no arguments."}
+   "device_status","timer_status","cancel_timer","stop_timer"->require(a.length()==0){"Device status accepts no arguments."}
    "read_memory"->text("query",120)
    "delete_memory"->require(text("id",100).matches(Regex("[A-Za-z0-9-]{1,100}"))){"Invalid memory ID."}
    "open_app"->text("app",150)
@@ -46,7 +46,7 @@ object ToolRegistry {
    "open_url"->require(validBrowserUrl(text("url",4096))){"Enter a valid HTTPS URL without embedded credentials."}
    "open_settings"->require(text("page") in setOf("app","wifi","bluetooth","accessibility","assistant","network","sound","location","notifications","battery")){"Unsupported settings page."}
    "set_alarm"->{integer("hour",0,23);integer("minute",0,59)}
-   "set_timer"->integer("seconds",1,86400)
+   "set_timer","set_clock_timer"->integer("seconds",1,86400)
    "dial","direct_call","sms_compose","whatsapp_compose"->{text("recipient",150);if(a.has("phone"))require(validPhone(text("phone",30))){"Invalid phone number."};if(action.name.endsWith("compose"))text("message",2000)}
    "save_memory"->require(safeMemory(text("label",120),text("value",2000))){"Memory must be nonempty and cannot contain credentials."}
    "mcp_call"->{text("server",100);text("tool",128);require(a.opt("arguments") is JSONObject){"MCP arguments must be a JSON object."}}
@@ -79,7 +79,11 @@ object ToolRegistry {
    Triple("dial","Propose dialer composition for a contact alias, phone or reserved recipient 'selected contact'. No call is placed until the user acts.",mapOf("recipient" to "string")),
    Triple("sms_compose","Propose an SMS composer; recipient may be 'selected contact' (resolved only on device). Does not send automatically.",mapOf("recipient" to "string","message" to "string")),
    Triple("whatsapp_compose","Propose WhatsApp composition (recipient may be 'selected contact'), not sending or calling.",mapOf("recipient" to "string","message" to "string")),
-   Triple("set_timer","Propose an Android timer.",mapOf("seconds" to "integer")),
+   Triple("set_timer","Start a real JARVIS timer directly. Convert minutes to seconds (five minutes = 300). Urdu/Hindi/English durations supported via numeric seconds. One active timer; never claim success until the result.",mapOf("seconds" to "integer")),
+   Triple("timer_status","Read the remaining seconds of the JARVIS timer.",emptyMap<String,String>()),
+   Triple("cancel_timer","Cancel the JARVIS timer directly when the user asks.",emptyMap<String,String>()),
+   Triple("stop_timer","Stop the running or finished JARVIS timer and dismiss its alert.",emptyMap<String,String>()),
+   Triple("set_clock_timer","Request a timer in external Clock; launch is not verified creation.",mapOf("seconds" to "integer")),
    Triple("set_alarm","Propose an Android alarm.",mapOf("hour" to "integer","minute" to "integer")),
    Triple("save_memory","Propose a non-secret memory. Explicit device approval is required.",mapOf("label" to "string","value" to "string")),
    Triple("mcp_call","Propose a tool on a user-configured MCP server. Always requires device review.",mapOf("server" to "string","tool" to "string","arguments" to "object"))
@@ -89,7 +93,7 @@ object ToolRegistry {
 }
 /** Deterministic user-command shortcuts only; ordinary text stays in the existing AI chat path. */
 fun parseUserCommand(text:String):ToolAction? {
- val t=text.trim();val rules=listOf(
+ val t=text.trim();com.raaz.assistant.timer.parseTimerCommand(t)?.let{return it};val rules=listOf(
   Triple(Regex("(?i)^(?:search youtube for|youtube search|یوٹیوب پر تلاش کریں|यूट्यूब पर खोजो)\\s+(.+)$"),"youtube_search","query"),
   Triple(Regex("(?i)^(?:open app|ایپ کھولو|ऐप खोलो)\\s+(.+)$"),"open_app","app"),
   Triple(Regex("(?i)^(?:search web for|web search)\\s+(.+)$"),"web_search","query"),

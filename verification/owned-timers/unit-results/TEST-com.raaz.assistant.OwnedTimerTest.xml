@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.raaz.assistant.OwnedTimerTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2026-11-13T04:07:23" hostname="679e28cd6756" time="0.025">
+  <properties/>
+  <testcase name="cancellationPreventsLateAlert" classname="com.raaz.assistant.OwnedTimerTest" time="0.002"/>
+  <testcase name="invalidParsedDurationStillFailsRegistry" classname="com.raaz.assistant.OwnedTimerTest" time="0.008"/>
+  <testcase name="processRecreationRetainsCountdown" classname="com.raaz.assistant.OwnedTimerTest" time="0.003"/>
+  <testcase name="elapsedTimerPostsOnce" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="scheduleFailureCannotClaimRunning" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="realDeadlineAndCountdownFromMonotonicClock" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <testcase name="staleCompletionCannotFinishNewTimer" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="secondsAndUpperBoundary" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="staleCancelCannotAffectNewTimer" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="stopDismissesFinishedAlert" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="earlyReceiverDoesNotCompleteTimer" classname="com.raaz.assistant.OwnedTimerTest" time="0.004"/>
+  <testcase name="restoringAlarmKeepsOriginalDeadlineAndIdentity" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <testcase name="rebootNeverClaimsOldElapsedDeadlineFinished" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="startNotificationFailureRollsBack" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="invalidDurationsHaveNoSideEffects" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="partialCreationIsInterruptedOnRecovery" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="thirtySeconds" classname="com.raaz.assistant.OwnedTimerTest" time="0.002"/>
+  <testcase name="newCommandDoesNotReplaceRunningTimer" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="statusAndCancelInThreeLanguages" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <testcase name="englishUrduHindiDurations" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <testcase name="oldFinishedRequestCannotStartAnotherTimer" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="duplicateRequestDoesNotRestart" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <testcase name="timerSchemasRejectExtraProviderArguments" classname="com.raaz.assistant.OwnedTimerTest" time="0.0"/>
+  <testcase name="failedNotificationDoesNotClaimDelivered" classname="com.raaz.assistant.OwnedTimerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
